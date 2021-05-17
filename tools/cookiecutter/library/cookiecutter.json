@@ -1,0 +1,6 @@
+{
+    "library_name": "Name of the Library. Limit name to one word where possible. Lower case and use underscores for multiple words",
+    "repo_name": "{{ cookiecutter.library_name.lower().replace(' ', '_') }}",
+    "authors": "Name of the authors working on the library",
+    "description": "A short description of the library."
+}
