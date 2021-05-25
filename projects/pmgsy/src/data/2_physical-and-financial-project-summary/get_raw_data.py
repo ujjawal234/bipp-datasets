@@ -9,11 +9,24 @@ from scrapy.crawler import CrawlerProcess
 
 
 class PmgsyScraper(scrapy.Spider):
-    name = "pmgsyscraper"
-    project_dir = str(Path(__file__).resolve().parents[2])
-    parent_folder = project_dir + "/data/raw/"
-    dataset = []
-    failed_requests = []
+
+    def __init__(self):
+        self.name = "pmgsyscraper"
+        super().__init__()
+
+        self.project_code = 'PaFPS'
+        self.project_link = 'PhyFinReport' # for basic report: PhysicalAndFinancialProjectSummary
+        self.project_name = '2_physical-and-financial-project-summary'
+
+        self.project_dir = str(Path(__file__).resolve().parents[3])
+        # print(self.project_dir)
+        self.parent_folder = self.project_dir + '/data/raw/'+self.project_name+'/'
+        self.output_dir = self.parent_folder+'output_files/'
+        self.dataset = []
+        self.failed_requests = []
+
+        self.ensure_directory(self.parent_folder)
+        self.ensure_directory(self.output_dir)
 
     def start_requests(self):
         # this is the request that will initiate the layout for this report
@@ -142,7 +155,8 @@ class PmgsyScraper(scrapy.Spider):
                     for colab_code in meta["colab_dict"]:
                         colab_name=meta["colab_dict"][colab_code]
                         yield Request(
-                            url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2fUspPropPhysicalProgressofWorksSubreport&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
+                            url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2f{}&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
+                                    self.project_link,
                                     meta['state_code'],
                                     meta['dist_code'],
                                     meta['block_code'],
@@ -182,12 +196,13 @@ class PmgsyScraper(scrapy.Spider):
         meta_data = dict(response.meta)
         table = response.css('#ReportViewer_ctl09_ReportControl div div table tr td table ').get()
         table_list = pd.read_html(table)
+        # print(table_list)
         road_data = table_list[7]
         # print(road_data)
 
         meta_data['filename'] = None
         if road_data.shape[0] > 4:
-            file_path = 'output_files/'
+            file_path = self.output_dir
             file_name = hashlib.md5(json.dumps(meta_data).encode("utf8")).hexdigest()[:15]
             road_data.to_csv(file_path+file_name+'.csv')
             meta_data['filename'] = file_name
