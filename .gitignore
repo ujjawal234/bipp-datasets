@@ -1,7 +1,3 @@
-### Ignore wasabi keys file and storage.json
-libs/downloads/factly/downloads/storage.json
-libs/downloads/factly/downloads/wasabi_keys.cfg
-
 ### Ignore Data files within Projects preserving the data directory###
 projects/*/data/**
 !projects/*/data/**/
