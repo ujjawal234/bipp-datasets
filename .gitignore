@@ -11,7 +11,8 @@ projects/*/data/**
 
 ### Code ###
 .vscode/*
-!.vscode/settings.json
+projects/*/.vscode/*
+.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
