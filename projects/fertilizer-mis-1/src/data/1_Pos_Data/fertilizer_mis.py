@@ -48,10 +48,10 @@ class Fertilizermisscrapper(scrapy.Spider):
         district_names = districts.values()
         dist_names = list(district_names)
         for dist in dist_names[1:]:
-            self.final_table = self.final_table.iloc[0:0]
             current = datetime(2018, 1, 1)
             start_date = datetime(2017, 1, 1)
             for i in list(rrule(DAILY, dtstart=start_date, until=current)):
+                self.final_table = self.final_table.iloc[0:0]
                 j = i + relativedelta(day=1)
                 yield Request(
                     "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action?parameterFromDate={}%2F{}%2F{}&parameterDistrictName={}&d-6849390-p=1&parameterStateName={}&parameterToDate={}%2F{}%2F{}".format(
