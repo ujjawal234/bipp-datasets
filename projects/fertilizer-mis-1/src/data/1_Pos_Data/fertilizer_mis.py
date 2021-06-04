@@ -48,8 +48,7 @@ class Fertilizermisscrapper(scrapy.Spider):
         district_names = districts.values()
         dist_names = list(district_names)
         for dist in dist_names[1:]:
-            self.monthly_table = self.final_table.iloc[0:0]
-            Fertilizermisscrapper.page_number = 1
+            self.final_table = self.final_table.iloc[0:0]
             current = datetime(2018, 1, 1)
             start_date = datetime(2017, 1, 1)
             for i in list(rrule(DAILY, dtstart=start_date, until=current)):
@@ -130,7 +129,7 @@ class Fertilizermisscrapper(scrapy.Spider):
                 self.monthly(response)
 
     def monthly(self, response):
-        if response.meta("To Day") == "1":
+        if response.meta["To Day"] == "1":
             self.monthly_table = pd.concat(
                 [self.monthly_table, self.final_table], sort=False
             )
@@ -147,6 +146,7 @@ class Fertilizermisscrapper(scrapy.Spider):
             file_name = meta_data.get("From Year") + "_" + month + ".csv"
             self.directory(file_path)
             self.monthly_table.to_csv(file_path + "/" + file_name)
+            self.monthly_table = self.monthly_table.iloc[0:0]
         else:
             self.monthly_table = pd.concat(
                 [self.monthly_table, self.final_table], sort=False
