@@ -1,13 +1,10 @@
 import calendar
 import json
-from datetime import datetime
+from datetime import date, timedelta
 from pathlib import Path
-from urllib.parse import urljoin
 
 import pandas as pd
 import scrapy
-from dateutil.relativedelta import relativedelta
-from dateutil.rrule import DAILY, rrule
 from scrapy import FormRequest, Request
 from scrapy.crawler import CrawlerProcess
 
@@ -48,11 +45,12 @@ class Fertilizermisscrapper(scrapy.Spider):
         district_names = districts.values()
         dist_names = list(district_names)
         for dist in dist_names[1:]:
-            current = datetime(2018, 1, 1)
-            start_date = datetime(2017, 1, 1)
-            for i in list(rrule(DAILY, dtstart=start_date, until=current)):
+            end_date = date(2018, 1, 1)
+            start_date = date(2017, 1, 1)
+            delta = timedelta(days=1)
+            while start_date <= end_date:
                 self.final_table = self.final_table.iloc[0:0]
-                j = i + relativedelta(day=1)
+                i = start_date
                 yield Request(
                     "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action?parameterFromDate={}%2F{}%2F{}&parameterDistrictName={}&d-6849390-p=1&parameterStateName={}&parameterToDate={}%2F{}%2F{}".format(
                         i.strftime("%d"),
@@ -60,25 +58,27 @@ class Fertilizermisscrapper(scrapy.Spider):
                         i.strftime("%Y"),
                         dist,
                         response.meta["State"],
-                        j.strftime("%d"),
-                        j.strftime("%m"),
-                        j.strftime("%Y"),
+                        i.strftime("%d"),
+                        i.strftime("%m"),
+                        i.strftime("%Y"),
                     ),
                     method="Post",
                     meta={
                         "State": response.meta["State"],
                         "District": dist,
                         "From Date": i.strftime("%d/%m/%Y"),
-                        "To Date": j.strftime("%d/%m/%Y"),
+                        "To Date": i.strftime("%d/%m/%Y"),
                         "From Year": i.strftime("%Y"),
                         "From month": i.strftime("%m"),
                         "From day": i.strftime("%d"),
-                        "To Year": j.strftime("%Y"),
-                        "To month": j.strftime("%m"),
-                        "To Day": j.strftime("%d"),
+                        "To Year": i.strftime("%Y"),
+                        "To month": i.strftime("%m"),
+                        "To Day": i.strftime("%d"),
+                        "End_Date": end_date.strftime("%d/%m/%Y"),
                     },
                     callback=self.get_data,
                 )
+                start_date += delta
 
     def get_data(self, response):
         "This fuction saves the csv file in the defined path."
@@ -89,51 +89,41 @@ class Fertilizermisscrapper(scrapy.Spider):
             data = table_list[0]
             self.final_table = pd.concat([self.final_table, data], sort=False)
             print(self.final_table)
-            self.pagination(response)
+
+            isexists = response.css("span.pagelinks a:nth-child(2)").get(
+                default="not-found"
+            )
+            if isexists == "not-found":
+                meta_data = dict(response.meta)
+                self.monthly(meta_data)
+            else:
+                j = 0
+                for i in range(1, 10):
+                    j += 1
+                    b = response.css("span.pagelinks a:nth-child(i)::text").extract()
+                    if b == "Next ?":
+                        break
+                url = response.css(
+                    "span.pagelinks a:nth-child('+j+')::attr(href)"
+                ).get()
+                url_match = url.split("&")
+                url_match_final = url_match[2]
+                if url_match_final != "d-6849390-p=1":
+                    yield response.follow(url, callback=self.get_data)
+                else:
+                    meta_data = dict(response.meta)
+                    self.monthly(meta_data)
 
         except TypeError:
             self.dataset.append(response.meta)
 
-    def pagination(self, response):
-        isexists = response.css("span.pagelinks strong+a::(href)").extract(
-            default="not-found"
-        )
-        if isexists == "not-found":
-            self.monthly(response)
-        else:
-            url = response.css("span.pagelinks strong+a::(href)").get()
-            url_match = url.split("&")
-            url_match1 = url_match[2]
-            absolute_url = (
-                "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action"
-            )
-            if url_match1 != "d-6849390-p=1":
-                final_url = urljoin(absolute_url, url)
-                yield Request(
-                    final_url,
-                    meta={
-                        "State": response.meta["State"],
-                        "District": response.meta["District"],
-                        "From Date": response.meta["From Date"],
-                        "To Date": response.meta["To Date"],
-                        "From Year": response.meta["From Year"],
-                        "From month": response.meta["From month"],
-                        "From day": response.meta["From day"],
-                        "To Year": response.meta["To Year"],
-                        "To month": response.meta["To month"],
-                        "To Day": response.meta["To Day"],
-                    },
-                    callback=self.get_data,
-                )
-            else:
-                self.monthly(response)
-
-    def monthly(self, response):
-        if response.meta["To Day"] == "1":
+    def monthly(self, meta_data):
+        if meta_data.get("To Day") == "1" or meta_data.get("To Date") == meta_data.get(
+            "End_Date"
+        ):
             self.monthly_table = pd.concat(
                 [self.monthly_table, self.final_table], sort=False
             )
-            meta_data = dict(response.meta)
             month_number = meta_data.get("From month")
             month = calendar.month_name[int(month_number)]
             file_path = (
