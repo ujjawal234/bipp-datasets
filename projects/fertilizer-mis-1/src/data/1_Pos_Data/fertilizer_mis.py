@@ -13,7 +13,6 @@ class Fertilizermisscrapper(scrapy.Spider):
     name = "fertilizermis"
     page_number = 1
     final_table = pd.DataFrame()
-    monthly_table = pd.DataFrame()
     project_dir = str(Path(__file__).resolve().parents[0])
     parent_folder = project_dir + "/data/raw/"
     dataset = []
@@ -49,7 +48,6 @@ class Fertilizermisscrapper(scrapy.Spider):
             start_date = date(2017, 1, 1)
             delta = timedelta(days=1)
             while start_date <= end_date:
-                self.final_table = self.final_table.iloc[0:0]
                 i = start_date
                 yield Request(
                     "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action?parameterFromDate={}%2F{}%2F{}&parameterDistrictName={}&d-6849390-p=1&parameterStateName={}&parameterToDate={}%2F{}%2F{}".format(
@@ -82,65 +80,71 @@ class Fertilizermisscrapper(scrapy.Spider):
 
     def get_data(self, response):
         "This fuction saves the csv file in the defined path."
-
         try:
             table = response.css("#districtTable").get()
             table_list = pd.read_html(table)
             data = table_list[0]
+            print(data)
+            print(response.css("span.pagelinks strong::text").get())
             self.final_table = pd.concat([self.final_table, data], sort=False)
             print(self.final_table)
+            pages_text = response.css("span.pagelinks::text").extract()
+            pages_href = response.css("span.pagelinks::href").extract()
+            print(pages_href)
 
-            isexists = response.css("span.pagelinks a:nth-child(2)").get(
-                default="not-found"
-            )
-            if isexists == "not-found":
+            print(pages_text[-1])
+            if pages_text[-1] != "Next ?":
                 meta_data = dict(response.meta)
-                self.monthly(meta_data)
+                month_number = meta_data.get("From month")
+                month = calendar.month_name[int(month_number)]
+                file_path = (
+                    self.parent_folder
+                    + "/"
+                    + meta_data.get("State")
+                    + "/"
+                    + meta_data.get("District")
+                )
+                file_name = (
+                    meta_data.get("From Year")
+                    + "_"
+                    + month
+                    + +meta_data.get("From Date")
+                    + ".csv"
+                )
+                self.directory(file_path)
+                self.final_table.to_csv(file_path + "/" + file_name)
+                self.final_table = self.final_table.iloc[0:0]
+                print(self.final_table)
+
             else:
-                j = 0
-                for i in range(1, 10):
-                    j += 1
-                    b = response.css("span.pagelinks a:nth-child(i)::text").extract()
-                    if b == "Next ?":
-                        break
-                url = response.css(
-                    "span.pagelinks a:nth-child('+j+')::attr(href)"
-                ).get()
+                url = pages_href[-1]
                 url_match = url.split("&")
                 url_match_final = url_match[2]
                 if url_match_final != "d-6849390-p=1":
                     yield response.follow(url, callback=self.get_data)
                 else:
                     meta_data = dict(response.meta)
-                    self.monthly(meta_data)
+                    month_number = meta_data.get("From month")
+                    month = calendar.month_name[int(month_number)]
+                    file_path = (
+                        self.parent_folder
+                        + "/"
+                        + meta_data.get("State")
+                        + "/"
+                        + meta_data.get("From Date")
+                        + "/"
+                        + meta_data.get("District")
+                    )
+                    file_name = meta_data.get("From Year") + "_" + month + ".csv"
+                    self.directory(file_path)
+                    self.final_table.to_csv(file_path + "/" + file_name)
+                    self.final_table = self.final_table.iloc[0:0]
+
+                    print(self.final_table)
 
         except TypeError:
             self.dataset.append(response.meta)
-
-    def monthly(self, meta_data):
-        if meta_data.get("To Day") == "1" or meta_data.get("To Date") == meta_data.get(
-            "End_Date"
-        ):
-            self.monthly_table = pd.concat(
-                [self.monthly_table, self.final_table], sort=False
-            )
-            month_number = meta_data.get("From month")
-            month = calendar.month_name[int(month_number)]
-            file_path = (
-                self.parent_folder
-                + "/"
-                + meta_data.get("State")
-                + "/"
-                + meta_data.get("District")
-            )
-            file_name = meta_data.get("From Year") + "_" + month + ".csv"
-            self.directory(file_path)
-            self.monthly_table.to_csv(file_path + "/" + file_name)
-            self.monthly_table = self.monthly_table.iloc[0:0]
-        else:
-            self.monthly_table = pd.concat(
-                [self.monthly_table, self.final_table], sort=False
-            )
+            print(self.dataset)
 
     def directory(self, file_path):
         path_parts = file_path.split("/")
