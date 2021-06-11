@@ -18,7 +18,7 @@ class Fertilizermisscrapper(scrapy.Spider):
     dataset = []
 
     def start_requests(self):
-        # this is the request that will initiate the scraping
+        # this is the request that will initiate the scraping the data
         yield Request("https://reports.dbtfert.nic.in/mfmsReports/getPOSReportForm")
 
     def parse(self, response):
