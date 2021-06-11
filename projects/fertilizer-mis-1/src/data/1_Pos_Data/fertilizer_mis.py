@@ -84,8 +84,11 @@ class Fertilizermisscrapper(scrapy.Spider):
             table = response.css("#districtTable").get()
             table_list = pd.read_html(table)
             data = table_list[0]
+            data.insert(15, "Date", response.meta["From Date"])
+            current_page = response.css("strong::text").get()
+            print(current_page)
+            data.insert(16, "Page", current_page)
             print(data)
-            print(response.css("span.pagelinks strong::text").get())
             self.final_table = pd.concat([self.final_table, data], sort=False)
             print(self.final_table)
             pages_text = response.css("span.pagelinks::text").extract()
@@ -106,7 +109,8 @@ class Fertilizermisscrapper(scrapy.Spider):
                     meta_data.get("From Year")
                     + "_"
                     + month
-                    + +meta_data.get("From Date")
+                    + "/"
+                    + meta_data.get("From Date")
                     + ".csv"
                 )
                 self.directory(file_path)
@@ -121,7 +125,17 @@ class Fertilizermisscrapper(scrapy.Spider):
                 url_match = url.split("&")
                 url_match_final = url_match[2]
                 if url_match_final != "d-6849390-p=1":
-                    yield response.follow(url, callback=self.get_data)
+                    yield response.follow(
+                        url,
+                        meta={
+                            "State": response.meta["State"],
+                            "District": response.meta["District"],
+                            "From Date": response.meta["From Date"],
+                            "From Year": response.meta["From Year"],
+                            "From month": response.meta["From month"],
+                        },
+                        callback=self.get_data,
+                    )
                 else:
                     meta_data = dict(response.meta)
                     month_number = meta_data.get("From month")
@@ -137,6 +151,7 @@ class Fertilizermisscrapper(scrapy.Spider):
                         meta_data.get("From Year")
                         + "_"
                         + month
+                        + "/"
                         + meta_data.get("From Date")
                         + ".csv"
                     )
