@@ -91,8 +91,7 @@ class Fertilizermisscrapper(scrapy.Spider):
             print(data)
             self.final_table = pd.concat([self.final_table, data], sort=False)
             print(self.final_table)
-            pages_text = response.css("span.pagelinks::text").extract()
-
+            pages_text = response.css("span.pagelinks a ::attr(text)").extract()
             print(pages_text[-1])
             if pages_text[-1] != "Next ?":
                 meta_data = dict(response.meta)
@@ -119,7 +118,7 @@ class Fertilizermisscrapper(scrapy.Spider):
                 print(self.final_table)
 
             else:
-                pages_href = response.css("span.pagelinks::href").extract()
+                pages_href = response.css("span.pagelinks a ::attr(href)").extract()
                 print(pages_href)
                 url = pages_href[-1]
                 url_match = url.split("&")
@@ -133,6 +132,11 @@ class Fertilizermisscrapper(scrapy.Spider):
                             "From Date": response.meta["From Date"],
                             "From Year": response.meta["From Year"],
                             "From month": response.meta["From month"],
+                            "From day": response.meta["From day"],
+                            "To Year": response.meta["To Year"],
+                            "To month": response.meta["To month"],
+                            "To Day": response.meta["To Day"],
+                            "End_Date": response.meta["End_Date"],
                         },
                         callback=self.get_data,
                     )
