@@ -13,7 +13,7 @@ class Fertilizermisscrapper(scrapy.Spider):
     name = "fertilizermis"
     page_number = 1
     final_table = pd.DataFrame()
-    project_dir = str(Path(__file__).resolve().parents[0])
+    project_dir = str(Path(__file__).resolve().parents[3])
     parent_folder = project_dir + "/data/raw/"
     dataset = []
 
@@ -80,22 +80,72 @@ class Fertilizermisscrapper(scrapy.Spider):
 
     def get_data(self, response):
         "This fuction saves the csv file in the defined path."
-        try:
-            table = response.css("#districtTable").get()
-            table_list = pd.read_html(table)
-            data = table_list[0]
-            data.insert(15, "Date", response.meta["From Date"])
-            current_page = response.css("strong::text").get()
-            print(current_page)
-            data.insert(16, "Page", current_page)
-            print(data)
-            self.final_table = pd.concat([self.final_table, data], sort=False)
-            print(self.final_table)
-            pages_text = response.css("span.pagelinks::text").extract()
 
-            print(pages_text[-1])
-            if pages_text[-1] != "Next ?":
+        table = response.css("#districtTable").get()
+        table_list = pd.read_html(table)
+        data = table_list[0]
+        data.insert(15, "Date", response.meta["From Date"])
+        current_page = response.css("strong::text").get()
+        data.insert(16, "Page", current_page)
+        # print(data)
+        self.final_table = pd.concat([self.final_table, data], sort=False)
+        # print(self.final_table)
+        pages_text = response.css("span.pagelinks > a::text").extract()
+        if pages_text[-1] != "Next ?":
+            meta_data = dict(response.meta)
+            print(meta_data)
+            month_number = meta_data.get("From month")
+            month = calendar.month_name[int(month_number)]
+            file_path = (
+                self.parent_folder
+                + "/"
+                + meta_data.get("State")
+                + "/"
+                + meta_data.get("District")
+                + "/"
+                + meta_data.get("From Year")
+                + "_"
+                + month
+            )
+            file_name = (
+                meta_data.get("From Year")
+                + "_"
+                + month
+                + "_"
+                + meta_data.get("From Date").replace("/", "_")
+                + ".csv"
+            )
+            self.directory(file_path)
+            self.final_table.to_csv(file_path + "/" + file_name)
+            self.final_table = self.final_table.iloc[0:0]
+            # print(self.final_table)
+
+        else:
+            pages_href = response.css("span.pagelinks > a::attr(href)").extract()
+            # print(pages_href)
+            url = (
+                "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action"
+                + pages_href[-1]
+            )
+            url_match = url.split("&")
+            url_match_final = url_match[2]
+            # print(url_match_final)
+            if url_match_final != "d-6849390-p=":
+                yield Request(
+                    url,
+                    method="GET",
+                    meta={
+                        "State": response.meta["State"],
+                        "District": response.meta["District"],
+                        "From Date": response.meta["From Date"],
+                        "From Year": response.meta["From Year"],
+                        "From month": response.meta["From month"],
+                    },
+                    callback=self.get_data,
+                )
+            else:
                 meta_data = dict(response.meta)
+                print(meta_data)
                 month_number = meta_data.get("From month")
                 month = calendar.month_name[int(month_number)]
                 file_path = (
@@ -104,66 +154,23 @@ class Fertilizermisscrapper(scrapy.Spider):
                     + meta_data.get("State")
                     + "/"
                     + meta_data.get("District")
+                    + "/"
+                    + meta_data.get("From Year")
+                    + "_"
+                    + month
                 )
                 file_name = (
                     meta_data.get("From Year")
                     + "_"
                     + month
-                    + "/"
-                    + meta_data.get("From Date")
+                    + "_"
+                    + meta_data.get("From Date").replace("/", "_")
                     + ".csv"
                 )
                 self.directory(file_path)
                 self.final_table.to_csv(file_path + "/" + file_name)
                 self.final_table = self.final_table.iloc[0:0]
-                print(self.final_table)
-
-            else:
-                pages_href = response.css("span.pagelinks::href").extract()
-                print(pages_href)
-                url = pages_href[-1]
-                url_match = url.split("&")
-                url_match_final = url_match[2]
-                if url_match_final != "d-6849390-p=1":
-                    yield response.follow(
-                        url,
-                        meta={
-                            "State": response.meta["State"],
-                            "District": response.meta["District"],
-                            "From Date": response.meta["From Date"],
-                            "From Year": response.meta["From Year"],
-                            "From month": response.meta["From month"],
-                        },
-                        callback=self.get_data,
-                    )
-                else:
-                    meta_data = dict(response.meta)
-                    month_number = meta_data.get("From month")
-                    month = calendar.month_name[int(month_number)]
-                    file_path = (
-                        self.parent_folder
-                        + "/"
-                        + meta_data.get("State")
-                        + "/"
-                        + meta_data.get("District")
-                    )
-                    file_name = (
-                        meta_data.get("From Year")
-                        + "_"
-                        + month
-                        + "/"
-                        + meta_data.get("From Date")
-                        + ".csv"
-                    )
-                    self.directory(file_path)
-                    self.final_table.to_csv(file_path + "/" + file_name)
-                    self.final_table = self.final_table.iloc[0:0]
-
-                    print(self.final_table)
-
-        except TypeError:
-            self.dataset.append(response.meta)
-            print(self.dataset)
+                # print(self.final_table)
 
     def directory(self, file_path):
         path_parts = file_path.split("/")
