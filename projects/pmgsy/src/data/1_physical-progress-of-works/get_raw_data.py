@@ -148,44 +148,45 @@ class PmgsyScraper(scrapy.Spider):
                 "colab_dict": response.meta["colab_dict"],
             }
 
-            for year in meta["year_dict"]:
-                for batch_code in meta["batch_dict"]:
-                    batch_name = meta["batch_dict"][batch_code]
-                    for colab_code in meta["colab_dict"]:
-                        colab_name = meta["colab_dict"][colab_code]
-                        yield Request(
-                            url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2f{}&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
-                                self.project_link,
-                                meta["state_code"],
-                                meta["dist_code"],
-                                meta["block_code"],
-                                year,
-                                batch_code,
-                                colab_code,
-                                meta["state_name"],
-                                meta["dist_name"],
-                                meta["block_name"],
-                                batch_name,
-                                colab_name,
-                            ),
-                            method="POST",
-                            meta={
-                                "state_code": meta["state_code"],
-                                "state_name": meta["state_name"],
-                                "dist_code": meta["dist_code"],
-                                "dist_name": meta["dist_name"],
-                                "block_code": meta["block_code"],
-                                "block_name": meta["block_name"],
-                                "year": year,
-                                "year_dict": response.meta["year_dict"],
-                                "batch_code": batch_code,
-                                "batch_name": batch_name,
-                                "colab_code": colab_code,
-                                "colab_name": colab_name,
-                            },
-                            callback=self.data_collector,
-                            errback=self.err_handler,
-                        )
+            # for year in meta["year_dict"]:
+            year = "0"
+            for batch_code in meta["batch_dict"]:
+                batch_name = meta["batch_dict"][batch_code]
+                for colab_code in meta["colab_dict"]:
+                    colab_name = meta["colab_dict"][colab_code]
+                    yield Request(
+                        url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2f{}&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
+                            self.project_link,
+                            meta["state_code"],
+                            meta["dist_code"],
+                            meta["block_code"],
+                            year,
+                            batch_code,
+                            colab_code,
+                            meta["state_name"],
+                            meta["dist_name"],
+                            meta["block_name"],
+                            batch_name,
+                            colab_name,
+                        ),
+                        method="POST",
+                        meta={
+                            "state_code": meta["state_code"],
+                            "state_name": meta["state_name"],
+                            "dist_code": meta["dist_code"],
+                            "dist_name": meta["dist_name"],
+                            "block_code": meta["block_code"],
+                            "block_name": meta["block_name"],
+                            "year": year,
+                            "year_dict": response.meta["year_dict"],
+                            "batch_code": batch_code,
+                            "batch_name": batch_name,
+                            "colab_code": colab_code,
+                            "colab_name": colab_name,
+                        },
+                        callback=self.data_collector,
+                        errback=self.err_handler,
+                    )
 
     def data_collector(self, response):
         """

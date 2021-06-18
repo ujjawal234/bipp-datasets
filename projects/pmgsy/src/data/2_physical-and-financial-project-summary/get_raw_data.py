@@ -48,6 +48,7 @@ class PmgsyScraper(scrapy.Spider):
         state_names = response.xpath(
             '//*[@id="StateList_PhyFinMonitorDetails"]/option/text()'
         ).extract()
+        state_names = [state.replace(" ", "+") for state in state_names]
         year_list_values = response.xpath(
             '//*[@id="YearList_PhyFinMonitorDetails"]/option/@value'
         ).extract()
@@ -74,7 +75,7 @@ class PmgsyScraper(scrapy.Spider):
         colab_dict = dict(zip(colab_list_values, colab_list_text))
         # looping through the states to get the districts,
         # we are starting from one since '0' is 'select state'
-        for state_code in state_codes[2:3]:
+        for state_code in state_codes[1:]:
             yield FormRequest(
                 url="http://omms.nic.in/NationalArea/National/DistrictDetails",
                 method="POST",
@@ -100,9 +101,9 @@ class PmgsyScraper(scrapy.Spider):
         # print(district_list)
         # looping through the districts to get the blocks,
         # we are starting from one since '0' is 'all districts'
-        for dist in district_list[1:2]:
+        for dist in district_list[1:]:
             dist_code = dist["Value"]
-            dist_name = dist["Text"]
+            dist_name = dist["Text"].replace(" ", "+")
             yield FormRequest(
                 url="http://omms.nic.in/NationalArea/National/BlockDetails",
                 method="POST",
@@ -147,50 +148,51 @@ class PmgsyScraper(scrapy.Spider):
                 "batch_dict": response.meta["batch_dict"],
                 "colab_dict": response.meta["colab_dict"],
             }
-
-            # for year in meta["year_dict"]:
-            #     for batch_code in meta["batch_dict"]:
-            #         batch_name=meta["batch_dict"][batch_code]
             year = "0"
-            batch_code = "0"
-            batch_name = "All+Batches"
-            colab_name = "All+Collaborations"
-            colab_code = "0"
-            # for colab_code in meta["colab_dict"]:
-            #     colab_name=meta["colab_dict"][colab_code]
-            yield Request(
-                url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2f{}&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
-                    self.project_link,
-                    meta["state_code"],
-                    meta["dist_code"],
-                    meta["block_code"],
-                    year,
-                    batch_code,
-                    colab_code,
-                    meta["state_name"],
-                    meta["dist_name"],
-                    meta["block_name"],
-                    batch_name,
-                    colab_name,
-                ),
-                method="POST",
-                meta={
-                    "state_code": meta["state_code"],
-                    "state_name": meta["state_name"],
-                    "dist_code": meta["dist_code"],
-                    "dist_name": meta["dist_name"],
-                    "block_code": meta["block_code"],
-                    "block_name": meta["block_name"],
-                    "year": year,
-                    "year_dict": response.meta["year_dict"],
-                    "batch_code": batch_code,
-                    "batch_name": batch_name,
-                    "colab_code": colab_code,
-                    "colab_name": colab_name,
-                },
-                callback=self.data_collector,
-                errback=self.err_handler,
-            )
+            # for year in meta["year_dict"]:
+            #
+
+            # batch_code = "0"
+            # batch_name = "All+Batches"
+            # colab_name = "All+Collaborations"
+            # colab_code = "0"
+            for batch_code in meta["batch_dict"]:
+                batch_name = meta["batch_dict"][batch_code]
+                for colab_code in meta["colab_dict"]:
+                    colab_name = meta["colab_dict"][colab_code]
+                    yield Request(
+                        url="http://omms.nic.in/MvcReportViewer.aspx?_r=%2fPMGSYCitizen%2f{}&Level=4&State={}&District={}&Block={}&Year={}&Batch={}&Collaboration={}&PMGSY=1&Status=%25&LocationName={}&DistrictName={}&BlockName={}&LocalizationValue=en&BatchName={}&CollaborationName={}".format(
+                            self.project_link,
+                            meta["state_code"],
+                            meta["dist_code"],
+                            meta["block_code"],
+                            year,
+                            batch_code,
+                            colab_code,
+                            meta["state_name"],
+                            meta["dist_name"],
+                            meta["block_name"],
+                            batch_name,
+                            colab_name,
+                        ),
+                        method="POST",
+                        meta={
+                            "state_code": meta["state_code"],
+                            "state_name": meta["state_name"],
+                            "dist_code": meta["dist_code"],
+                            "dist_name": meta["dist_name"],
+                            "block_code": meta["block_code"],
+                            "block_name": meta["block_name"],
+                            "year": year,
+                            "year_dict": response.meta["year_dict"],
+                            "batch_code": batch_code,
+                            "batch_name": batch_name,
+                            "colab_code": colab_code,
+                            "colab_name": colab_name,
+                        },
+                        callback=self.data_collector,
+                        errback=self.err_handler,
+                    )
 
     def data_collector(self, response):
         """
@@ -199,12 +201,14 @@ class PmgsyScraper(scrapy.Spider):
         """
         meta_data = dict(response.meta)
 
-        table = response.xpath('//*[@id="ReportViewer_ctl09"]')
+        table = response.css(
+            "#ReportViewer_ctl09_ReportControl div div table tr td table "
+        ).get()
+        print("GETTING THE DATA NOW " * 5)
         table_list = pd.read_html(table)
-        print("GOT DATA " * 6)
         # print(table_list)
         road_data = table_list[7]
-        # print(road_data)
+        print(road_data)
         # road_data = pd.DataFrame()
 
         meta_data["filename"] = None
