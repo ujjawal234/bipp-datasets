@@ -16,6 +16,7 @@ class Fertilizermisscrapper(scrapy.Spider):
     project_dir = str(Path(__file__).resolve().parents[3])
     parent_folder = project_dir + "/data/raw/"
     dataset = []
+    scraped_dataset = []
 
     def start_requests(self):
         # this is the request that will initiate the scraping the data
@@ -91,6 +92,8 @@ class Fertilizermisscrapper(scrapy.Spider):
         self.final_table = pd.concat([self.final_table, data], sort=False)
         # print(self.final_table)
         pages_text = response.css("span.pagelinks > a::text").extract()
+        if len(pages_text) < 1:
+            pages_text = response.css("span.pagelinks > strong::text").extract()
         if pages_text[-1] != "Next ?":
             meta_data = dict(response.meta)
             print(meta_data)
@@ -116,7 +119,9 @@ class Fertilizermisscrapper(scrapy.Spider):
                 + ".csv"
             )
             self.directory(file_path)
-            self.final_table.to_csv(file_path + "/" + file_name)
+            print(file_path + "/" + file_name)
+            self.scraped_dataset.append(meta_data)
+            self.final_table.to_csv(file_path + "/" + file_name, index=False)
             self.final_table = self.final_table.iloc[0:0]
             # print(self.final_table)
 
@@ -168,7 +173,9 @@ class Fertilizermisscrapper(scrapy.Spider):
                     + ".csv"
                 )
                 self.directory(file_path)
-                self.final_table.to_csv(file_path + "/" + file_name)
+                print(file_path + "/" + file_name)
+                self.scraped_dataset.append(meta_data)
+                self.final_table.to_csv(file_path + "/" + file_name, index=False)
                 self.final_table = self.final_table.iloc[0:0]
                 # print(self.final_table)
 
@@ -177,6 +184,16 @@ class Fertilizermisscrapper(scrapy.Spider):
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
             Path(present_path).mkdir(exist_ok=True)
+
+    def closed(self, reason):
+        """
+        # This function saves the dataset collecting filenames to a file on the disk
+        """
+
+        print("Saving all collected data[len:{}]...".format(len(self.scraped_dataset)))
+        json.dump(
+            self.scraped_dataset, open(self.parent_folder + "scraped_dataset.json", "w")
+        )
 
 
 def main():
