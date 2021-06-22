@@ -27,15 +27,37 @@ class psdataOrrisascraper(scrapy.Spider):
         dist_values = response.xpath(
             '//select[@id="ddlDistrict"]/option/@value'
         ).extract()
+        form_dict = {
+            "__EVENTTARGET": response.css(
+                "#__EVENTTARGET::attr(value)"
+            ).extract_first(),
+            "__EVENTARGUMENT": response.css(
+                "#__EVENTARGUMENT::attr(value)"
+            ).extract_first(),
+            "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
+            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__VIEWSTATEGENERATOR": response.css(
+                "#__VIEWSTATEGENERATOR::attr(value)"
+            ).extract_first(),
+            "__EVENTVALIDATION": response.css(
+                "#__EVENTVALIDATION::attr(value)"
+            ).extract_first(),
+            "ddlDistrict": "",
+            "TextCaptcha": "",
+        }
+        print(form_dict)
         i = 1
+        # //*[@id="ddlAC"]/option
         for dist in dist_values[1:]:
+            form_dict["ddlDistrict"] = dist
             yield FormRequest.from_response(
                 response,
                 url="http://election.ori.nic.in/odishaceo/ViewEroll.aspx",
                 method="POST",
-                formdata={"ddlDistrict": dist},
-                dont_click="True",
+                formdata=form_dict,
+                # dont_click="True",
                 callback=self.ac_parser,
+                meta={"district_code": dist},
             )
             i += 1
 
@@ -45,15 +67,35 @@ class psdataOrrisascraper(scrapy.Spider):
         ac_values = response.xpath('//select[@id="ddlAC"]/option/@value').extract()
         print(ac_list)
         print("*****")
+        form_dict = {
+            "__EVENTTARGET": response.css(
+                "#__EVENTTARGET::attr(value)"
+            ).extract_first(),
+            "__EVENTARGUMENT": response.css(
+                "#__EVENTARGUMENT::attr(value)"
+            ).extract_first(),
+            "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
+            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__VIEWSTATEGENERATOR": response.css(
+                "#__VIEWSTATEGENERATOR::attr(value)"
+            ).extract_first(),
+            "__EVENTVALIDATION": response.css(
+                "#__EVENTVALIDATION::attr(value)"
+            ).extract_first(),
+            "ddlDistrict": response.meta["district_code"],
+            "ddlAC": "",
+            "TextCaptcha": "",
+        }
         i = 1
         for ac in ac_values[1:]:
+            form_dict["ddlAC"] = ac
             yield FormRequest.from_response(
                 response,
                 url="http://election.ori.nic.in/odishaceo/ViewEroll.aspx",
                 method="POST",
-                formdata={"ddlDistrict": ac, "ddlAC": ac},
+                formdata=form_dict,
                 meta={"ac_names": ac_list[i]},
-                dont_click="True",
+                # dont_click="True",
                 callback=self.save_data,
             )
             i += 1
