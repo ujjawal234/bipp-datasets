@@ -1,103 +1,73 @@
-# %%
-import json
 import os
 
-# import zipfile
-from glob import glob
-
-import altair as alt
-
-# import altair_viewer
-import geopandas as gpd
-
-# import matplotlib.pyplot as plt
-# import numpy as np
 import pandas as pd
 
-alt.renderers.enable("altair_viewer")
 
-file_path = "./data/interim/Ag_Census_2015_2016/Non_Crop_2015_2016/"
-read_file = glob(os.path.join(file_path, "*.csv"))
-combined = pd.concat((pd.read_csv(file) for file in read_file), ignore_index=True)
-combined.columns = combined.columns.str.lower()
-combined["state"] = combined["state"].str.title()
-
-# # combined dimmension (510400 x 49)
-combined_drop = combined.drop(["uqid", "size_class", "soc_grp", "unnamed: 0"], axis=1)
-# combined_drop[combined_drop.columns[4:]] = combined_drop[combined_drop.columns[4:]].fillna(0)
-# print(combined_drop.head())
-states = combined_drop["state"].unique()
-
-group_lgd = combined_drop.groupby(["lgd_code"], as_index=False).sum()
-# print(group_lgd.head())
-
-json_file = gpd.read_file(
-    os.path.join("./data/interim/Ag_Census_2015_2016/Tehsil_2020_v2_topo.json"),
-    driver="TopoJSON",
-)
-json_file.rename(
-    columns={
-        "Sb_Dt_LGD": "lgd_code",
-        "State_UT_N": "state",
-        "Dist_Name": "district",
-        "Sub_Dist_N": "tehsil",
-    },
-    inplace=True,
-)
-json_file["id"] = json_file["lgd_code"]
+def read_csv_excel(path):
+    """
+    This function takes the path of a folder and
+    reads the csv and excel files inside it
+    and then returns a concatenated dataframe
+    """
+    os.chdir(path)
+    csv_excel = []
+    for file in os.listdir():
+        if file.endswith(".csv"):
+            x = pd.read_csv(file, index_col=0)
+            csv_excel.append(x)
+        elif file.endswith(".xlsx"):
+            y = pd.read_excel(file, index_col=0)
+            csv_excel.append(y)
+        else:
+            print("extension type is not acceptible")
+    comb = pd.concat(csv_excel, axis=0, ignore_index=True)
+    return comb
 
 
-def state_mp(state, color_col, color_title, tooltip):
-    group_lgd_st = (
-        combined_drop.loc[combined_drop["state"] == state]
-        .groupby("lgd_code", as_index=False)
-        .sum()
-    )
-    json_file_st = json_file.loc[json_file["state"] == state]
-    gdf_merged_st = json_file_st.merge(
-        group_lgd_st, left_on="id", right_on="lgd_code", how="inner"
-    )  # geodataframe
-    json_gdf_st = gdf_merged_st.to_json()  # string datatype
-    json_features_st = json.loads(json_gdf_st)  # dict type
-    data_geo_st = alt.Data(
-        values=json_features_st["features"]
-    )  # json_features['features] is list type
+# path = './data/interim/agcensus_isb/csv_excel/'
+# df = read_csv_excel(path)
+# print(df)
 
-    # Add Base Layer
-    base = (
-        alt.Chart(data_geo_st, title=state)
-        .mark_geoshape(stroke="black", strokeWidth=1)
-        .encode()
-        .properties(width=800, height=800)
-    )
-    # Add Choropleth Layer
-    choro = (
-        alt.Chart(data_geo_st)
-        .mark_geoshape(
-            # fill='lightgray',
-            stroke="black"
-        )
-        .encode(
-            alt.Color(
-                color_col,
-                type="quantitative",
-                scale=alt.Scale(scheme="yelloworangered"),
-                title=color_title,
-            ),
-            tooltip=tooltip,
-        )
-    )
-    #   alt.renderers.enable('mimebundle')
-    return (base + choro).configure_view(strokeWidth=0)
+path_nc15 = "./data/interim/agcensus_isb/ag_census_2015_2016/non_crop_2015_2016/"
+combined_nc15 = read_csv_excel(path_nc15)
 
 
-fig = state_mp(
-    state="Madhya Pradesh",
-    color_col="properties.gca_tot:Q",
-    color_title="gca tot",
-    tooltip=["properties.gca_tot:Q", "properties.hold_ar:Q"],
-)
-fig.show()
-# fig.save('madhyaP.html')
+def lower(df):
+    df.columns = df.columns.str.lower()
+    df = df.applymap(lambda s: s.lower() if type(s) == str else s)
+    return df
 
-# %%
+
+def pre_process(df):
+    df = df.drop(["uqid", "size_class", "soc_grp"], axis=1)
+    df[df.columns[4:]] = df[df.columns[4:]].fillna(0)
+    df = df.groupby(
+        ["state", "district", "tehsil", "lgd_code"], as_index=False, dropna=False
+    ).sum()
+    return df
+
+
+combined_nc15 = lower(combined_nc15)
+combined_drop15 = pre_process(combined_nc15)
+
+states = combined_nc15["state"].unique()
+states_six = [
+    "punjab",
+    "maharashtra",
+    "jharkhand",
+    "chhattisgarh",
+    "odisha",
+    "karnataka",
+]
+
+# df = combined_drop.loc[combined_drop['state'].isin(states_six)]
+# df = df.reset_index(drop=True)
+# null_df = df[df['lgd_code'].isnull()]
+# null_df = null_df[null_df.columns[0:4]]
+# null_df.drop(['lgd_code'], axis=1, inplace=True)
+# null_df = null_df.reset_index(drop=True)
+# null_df['lgd_mapped'] = np.nan
+# null_df['sb_dt_cdbook'] = np.nan
+# null_df['block_cdbook'] = np.nan
+# null_df = null_df[null_df.columns[[0,1,2,4,3,5]]]
+# null_df.to_csv('/content/drive/MyDrive/Agri_ISB/Ag_Census_2015_2016/null_df_mapped_15_16.csv')
