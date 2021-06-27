@@ -1,4 +1,8 @@
-from . import agcensus as ag
+from .agcensus import states_six
 
-df_nc15_six = ag.combined_drop15.loc[ag.combined_drop15["state"].isin(ag.states_six)]
-print(df_nc15_six)
+# import src
+# from src.visualization import states_six
+
+# df_nc15_six = combined_drop15.loc[combined_drop15["state"].isin(states_six)]
+# print(df_nc15_six)
+print(states_six)
