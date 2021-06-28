@@ -77,10 +77,9 @@ def state_mp(state, color_col, color_title, tooltip):
     # Add states layer
     data_geo_state = json_feature_list(json_state)
 
-    state_shape = (
+    outline = (
         alt.Chart(data_geo_state)
-        .mark_geoshape(stroke="white", fillOpacity=0, strokeWidth=2)
-        .encode()
+        .mark_geoshape(stroke="white", fillOpacity=0, strokeWidth=1.5)
         .properties(width=800, height=800)
     )
     # Add Base Layer
@@ -91,14 +90,7 @@ def state_mp(state, color_col, color_title, tooltip):
 
     base = (
         alt.Chart(data_geo_tehsil, title="Visualisation for six states")
-        .mark_geoshape(stroke="white", strokeWidth=1)
-        .encode()
-        .properties(width=800, height=800)
-    )
-    # Add Choropleth Layer
-    choro = (
-        alt.Chart(data_geo_tehsil)
-        .mark_geoshape(stroke="white")
+        .mark_geoshape(stroke="white", strokeWidth=0.5)
         .encode(
             alt.Color(
                 color_col,
@@ -108,8 +100,16 @@ def state_mp(state, color_col, color_title, tooltip):
             ),
             tooltip=tooltip,
         )
+        .properties(width=800, height=800)
     )
-    return (state_shape + base + choro).configure_view(strokeWidth=1)
+    base1 = (
+        alt.Chart(data_geo_tehsil)
+        .mark_geoshape(
+            fillOpacity=0,
+        )
+        .encode(tooltip=tooltip)
+    )
+    return base + outline + base1
 
 
 def main():
