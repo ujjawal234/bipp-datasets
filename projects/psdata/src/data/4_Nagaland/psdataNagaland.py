@@ -31,46 +31,41 @@ class psdataNagalandscraper(scrapy.Spider):
         ).extract()
         print(dist_names)
         print(dist_values)
-        print(response.text)
-        # i = 1
-        # form_dict = {
-        #     "ctl00$ctl08":"",
-        #     "__EVENTTARGET": response.css(
-        #         "#__EVENTTARGET::attr(value)"
-        #     ).extract_first(),
-        #     "__EVENTARGUMENT": response.css(
-        #         "#__EVENTARGUMENT::attr(value)"
-        #     ).extract_first(),
-        #     "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
-        #     "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
-        #     "__VIEWSTATEGENERATOR": response.css(
-        #         "#__VIEWSTATEGENERATOR::attr(value)"
-        #     ).extract_first(),
-        #     "__EVENTVALIDATION": response.css(
-        #         "#__EVENTVALIDATION::attr(value)"
-        #     ).extract_first(),
-        #     'ctl00$ContentPlaceHolder1$DropDownListDistrict':"",
-        #     'ctl00$ContentPlaceHolder1$DropDownListAC':"",
-        #     'ctl00$ContentPlaceHolder1$DropDownListPart':"Select Part...",
-        #     '_ASYNCPOST': "true"
+        # print(response.text)
+        i = 1
+        form_dict = {
+            "ctl00$ctl08": "ctl00$ctl08|ctl00$ContentPlaceHolder1$DropDownListDistrict",
+            "__EVENTTARGET": "ctl00$ContentPlaceHolder1$DropDownListDistrict",
+            "__EVENTARGUMENT": "",
+            "__LASTFOCUS": "",
+            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__VIEWSTATEGENERATOR": response.css(
+                "#__VIEWSTATEGENERATOR::attr(value)"
+            ).extract_first(),
+            "__EVENTVALIDATION": response.css(
+                "#__EVENTVALIDATION::attr(value)"
+            ).extract_first(),
+            "ctl00$ContentPlaceHolder1$DropDownListAC": "Select AC...",
+            "ctl00$ContentPlaceHolder1$DropDownListPart": "Select Part...",
+            "_ASYNCPOST": "true",
+        }
+        print(form_dict)
 
-        #     }
-
-        # for dist in dist_values[1:]:
-        #     form_dict["ctl00$ContentPlaceHolder1$DropDownListDistrict"] = dist
-        #     form_dict["ctl00$ctl08"]="ctl00$ctl08|ctl00$ContentPlaceHolder1$DropDownListDistrict"
-        #     yield FormRequest.from_response(
-        #         response,
-        #         url="http://ceo.nagaland.gov.in/DownloadERoll",
-        #         method="POST",
-        #         formdata=form_dict,
-        #         #dont_click="True",
-        #         callback=self.ac_parser,
-        #         meta={"district_code": dist}
-        #     )
-        #     i += 1
+        for dist in dist_values[1:]:
+            form_dict["ctl00$ContentPlaceHolder1$DropDownListDistrict"] = dist
+            yield FormRequest.from_response(
+                response,
+                url="http://ceo.nagaland.gov.in/DownloadERoll",
+                method="POST",
+                formdata=form_dict,
+                # dont_click="True",
+                callback=self.ac_parser,
+                meta={"district_code": dist},
+            )
+            i += 1
 
     def ac_parser(self, response):
+        # print(response.text)
 
         ac_list = response.xpath(
             '//select[@id="ContentPlaceHolder1_DropDownListAC"]/option/text()'
@@ -79,12 +74,12 @@ class psdataNagalandscraper(scrapy.Spider):
             '//select[@id="ContentPlaceHolder1_DropDownListAC"]/option/@value'
         ).extract()
 
+        print(ac_list)
+        print(ac_values)
         i = 1
         form_dict = {
-            "ctl00$ctl08": "",
-            "__EVENTTARGET": response.css(
-                "#__EVENTTARGET::attr(value)"
-            ).extract_first(),
+            "ctl00$ctl08": "ctl00$ContentPlaceHolder1$UPAC|ctl00$ContentPlaceHolder1$DropDownListAC",
+            "__EVENTTARGET": "ctl00$ContentPlaceHolder1$DropDownListAC",
             "__EVENTARGUMENT": response.css(
                 "#__EVENTARGUMENT::attr(value)"
             ).extract_first(),
@@ -99,15 +94,11 @@ class psdataNagalandscraper(scrapy.Spider):
             "ctl00$ContentPlaceHolder1$DropDownListDistrict": response.meta[
                 "district_code"
             ],
-            "ctl00$ContentPlaceHolder1$DropDownListAC": "",
-            "ctl00$ContentPlaceHolder1$DropDownListPart": "",
+            "ctl00$ContentPlaceHolder1$DropDownListPart": "Select Part...",
             "_ASYNCPOST": "true",
         }
         for ac in ac_values[1:]:
-            form_dict["ctl00$ContentPlaceHolder1$DropDownListAC"] = (ac,)
-            form_dict[
-                "ctl00$ctl08"
-            ] = "ctl00$ContentPlaceHolder1$UPAC|ctl00$ContentPlaceHolder1$DropDownListAC"
+            form_dict["ctl00$ContentPlaceHolder1$DropDownListAC"] = ac
             yield FormRequest.from_response(
                 response,
                 url="http://ceo.nagaland.gov.in/DownloadERoll",
@@ -123,7 +114,7 @@ class psdataNagalandscraper(scrapy.Spider):
         final_table = response.xpath(
             '//select[@id="ContentPlaceHolder1_DropDownListPart"]/option/text()'
         ).extract()
-        # print(final_table)
+        print(final_table)
         table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
         table_list = table_list.iloc[1:, 0:]
 
