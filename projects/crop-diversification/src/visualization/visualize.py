@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 path_ag = "./data/interim/agcensus_isb/"
-path_six = "ag_census_2015_2016/mapped_nc_15_16.csv"
+path_six = "ag_census_2015_2016/mapped6_nc_15_16.csv"
 rel_path = os.path.abspath(path_ag + path_six)
 
 states_six = [
@@ -19,7 +19,9 @@ states_six = [
     "karnataka",
 ]
 
-df_nc15 = pd.read_csv(rel_path, index_col=0)  # df viz. mapped for six states
+df_nc15 = pd.read_csv(
+    rel_path, index_col=0
+)  # ungrouped df for all states and mapped for six states
 df_vis_six = df_nc15[df_nc15["state"].isin(states_six)]  # df for visualisation
 
 
@@ -73,6 +75,10 @@ def json_feature_list(gdf):
     return gdf
 
 
+states_drop = ["All six states"] + states_six
+select = st.selectbox("Select a State", states_drop)
+
+
 def state_mp(state, color_col, color_title, tooltip):
     # Add states layer
     data_geo_state = json_feature_list(json_state)
@@ -112,26 +118,23 @@ def state_mp(state, color_col, color_title, tooltip):
     return base + outline + base1
 
 
-def main():
-    fig = state_mp(
-        state=states_six,
-        color_col="properties.hold_no:Q",
-        color_title="no. of holdings",
-        tooltip=[
-            "properties.state_x:N",
-            "properties.district_x:N",
-            "properties.hold_no:Q",
-            "properties.hold_ar:Q",
-        ],
-    )
-    st.title("AgCensus Visualisation:")
-    # st.subheader("Analize data at various levels")
-    st.altair_chart(fig, use_container_width=True)
+# def main():
+fig = state_mp(
+    state=states_six,
+    color_col="properties.hold_no:Q",
+    color_title="no. of holdings",
+    tooltip=[
+        "properties.state_x:N",
+        "properties.district_x:N",
+        "properties.hold_no:Q",
+        "properties.hold_ar:Q",
+    ],
+)
 
-    # st.sidebar.title("Agcensus variable analysis:")
-    # st.markdown("This dashboard analysizes change for any agcensus feature for the year 2010-11 and 2015-16")
-    # st.sidebar.markdown("This dashboard analysizes change for any agcensus feature for the year 2010-11 and 2015-16")
+st.title("AgCensus Visualisation:")
+# st.subheader("Analize data at various levels")
+st.altair_chart(fig, use_container_width=True)
 
-
-if __name__ == "__main__":
-    main()
+# st.sidebar.title("Agcensus variable analysis:")
+# st.markdown("This dashboard analysizes change for any agcensus feature for the year 2010-11 and 2015-16")
+# st.sidebar.markdown("This dashboard analysizes change for any agcensus feature for the year 2010-11 and 2015-16")
