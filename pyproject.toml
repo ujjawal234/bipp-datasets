@@ -5,7 +5,7 @@ description = "Monorepo for all the datasets generated at BIPP"
 authors = ["Bharti Institute of Public Policy<surya_kandukuri@isb.edu>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 scrapy = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
