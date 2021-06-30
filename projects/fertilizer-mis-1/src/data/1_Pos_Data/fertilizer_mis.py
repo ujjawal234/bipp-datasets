@@ -21,9 +21,7 @@ class Fertilizermisscrapper(scrapy.Spider):
 
     def start_requests(self):
         # this is the request that will initiate the scraping the data
-        yield Request(
-            "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportForm"
-        )
+        yield Request("https://reports.dbtfert.nic.in/mfmsReports/getPOSReportForm")
 
     def parse(self, response):
         "This fuction will parse the names of all states in the district and will raise another request to get all districts in a state."
@@ -100,9 +98,7 @@ class Fertilizermisscrapper(scrapy.Spider):
         # print(self.final_table)
         pages_text = response.css("span.pagelinks > a::text").extract()
         if len(pages_text) < 1:
-            pages_text = response.css(
-                "span.pagelinks > strong::text"
-            ).extract()
+            pages_text = response.css("span.pagelinks > strong::text").extract()
         if pages_text[-1] != "Next ?":
             meta_data = dict(response.meta)
             print(meta_data)
@@ -116,17 +112,10 @@ class Fertilizermisscrapper(scrapy.Spider):
                 + meta_data.get("District")
                 + "/"
                 + meta_data.get("From Year")
-                + "_"
+                + "/"
                 + month
             )
-            file_name = (
-                meta_data.get("From Year")
-                + "_"
-                + month
-                + "_"
-                + meta_data.get("From Date").replace("/", "_")
-                + ".csv"
-            )
+            file_name = meta_data.get("From Date").replace("/", "_") + ".csv"
             self.directory(file_path)
             print(file_path + "/" + file_name)
             self.scraped_dataset.append(meta_data)
@@ -135,9 +124,7 @@ class Fertilizermisscrapper(scrapy.Spider):
             # print(self.final_table)
 
         else:
-            pages_href = response.css(
-                "span.pagelinks > a::attr(href)"
-            ).extract()
+            pages_href = response.css("span.pagelinks > a::attr(href)").extract()
             # print(pages_href)
             url = (
                 "https://reports.dbtfert.nic.in/mfmsReports/getPOSReportFormList.action"
@@ -172,23 +159,14 @@ class Fertilizermisscrapper(scrapy.Spider):
                     + meta_data.get("District")
                     + "/"
                     + meta_data.get("From Year")
-                    + "_"
+                    + "/"
                     + month
                 )
-                file_name = (
-                    meta_data.get("From Year")
-                    + "_"
-                    + month
-                    + "_"
-                    + meta_data.get("From Date").replace("/", "_")
-                    + ".csv"
-                )
+                file_name = meta_data.get("From Date").replace("/", "_") + ".csv"
                 self.directory(file_path)
                 print(file_path + "/" + file_name)
                 self.scraped_dataset.append(meta_data)
-                self.final_table.to_csv(
-                    file_path + "/" + file_name, index=False
-                )
+                self.final_table.to_csv(file_path + "/" + file_name, index=False)
                 self.final_table = self.final_table.iloc[0:0]
                 # print(self.final_table)
 
@@ -203,11 +181,7 @@ class Fertilizermisscrapper(scrapy.Spider):
         # This function saves the dataset collecting filenames to a file on the disk
         """
 
-        print(
-            "Saving all collected data[len:{}]...".format(
-                len(self.scraped_dataset)
-            )
-        )
+        print("Saving all collected data[len:{}]...".format(len(self.scraped_dataset)))
         json.dump(
             self.scraped_dataset,
             open(self.parent_folder + "scraped_dataset.json", "w"),
