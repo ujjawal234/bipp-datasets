@@ -7,6 +7,7 @@ import streamlit as st
 path_ag = "./data/interim/agcensus_isb/"
 path_nc_var = "ag_census_2015_2016/non_crop_variables_selected.xlsx"
 path_six = "ag_census_2015_2016/mapped6_nc_15_16.csv"
+path_ungr = "ag_census_2015_2016/combined6_mapped_nc_ungr_15_16.csv"
 
 states_six = [
     "punjab",
@@ -18,10 +19,12 @@ states_six = [
 ]
 states_drop = ["All six states"] + states_six
 
-df_nc15 = pd.read_csv(
-    os.path.abspath(path_ag + path_six), index_col=0
-)  # ungrouped df for all states and mapped for six states
-df_vis_six = df_nc15[df_nc15["state"].isin(states_six)]  # df for visualisation
+df_ungr_nc15 = pd.read_csv(os.path.abspath(path_ag + path_ungr))
+
+# df_nc15 = pd.read_csv(
+#     os.path.abspath(path_ag + path_six), index_col=0
+# )  # ungrouped df for all states and mapped for six states
+# df_vis_six = df_nc15[df_nc15["state"].isin(states_six)]  # df for visualisation
 
 tehsil_url = "https://raw.githubusercontent.com/Shahbaz67/bipp_personal/main/Tehsil_2020_v2_topo.json"
 data_geo_t = alt.topo_feature(tehsil_url, "Tehsil_2020_v2_new")
@@ -33,6 +36,18 @@ data_geo_s = alt.topo_feature(state_url, "State_2020")
 
 # select by state
 select_state = st.selectbox("Select a State", states_drop)
+
+soc_gr = df_ungr_nc15["soc_grp"].unique()
+myorder_soc = [4, 0, 1, 3, 2]
+soc_gr = x = [soc_gr[i] for i in myorder_soc]
+# select by social group
+select_soc_grp = st.selectbox("Select a social group", soc_gr)
+
+size_class = df_ungr_nc15["size_class"].unique()
+myorder_size = [15, 2, 4, 7, 11, 14]
+size_class = [size_class[i] for i in myorder_size]
+# select by size class
+select_size_class = st.selectbox("Select a size class", size_class)
 
 # df of selected variables for non crop
 df_var_selected = pd.read_excel(os.path.abspath(path_ag + path_nc_var))
@@ -63,10 +78,18 @@ colors = [
 ]
 color_dict = dict(zip(parameter, colors))
 
+df = df_ungr_nc15[
+    (df_ungr_nc15["state"] == select_state)
+    & (df_ungr_nc15["soc_grp"] == select_soc_grp)
+    & (df_ungr_nc15["size_class"] == select_size_class)
+]
+value = str(param_dict_rev[select_param]) + ":Q"
+color_scheme = color_dict[param_dict_rev[select_param]]
 if select_state == "All six states":
-    if select_param:
-        value = str(param_dict_rev[select_param]) + ":Q"
-        color_scheme = color_dict[param_dict_rev[select_param]]
+    df_vis_six = df_ungr_nc15[
+        (df_ungr_nc15["soc_grp"] == select_soc_grp)
+        & (df_ungr_nc15["size_class"] == select_size_class)
+    ]
     # state
     state_layer = (
         alt.Chart(data_geo_s)
@@ -84,14 +107,14 @@ if select_state == "All six states":
                 scale=alt.Scale(scheme=color_scheme),
                 title=select_param,
             ),
-            tooltip=["state:O", "district:O", value],
+            tooltip=["state:O", "tehsil:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
                 data=df_vis_six,
                 key="lgd_code",
-                fields=["state", "district", param_dict_rev[select_param]],
+                fields=["state", "tehsil", param_dict_rev[select_param]],
             ),
         )
         .properties(width=800, height=800)
@@ -104,22 +127,24 @@ if select_state == "All six states":
         )
         .encode(
             color=value,
-            tooltip=["state:O", "district:O", value],
+            tooltip=["state:O", "tehsil:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
                 data=df_vis_six,
                 key="lgd_code",
-                fields=["state", "district", param_dict_rev[select_param]],
+                fields=["state", "tehsil", param_dict_rev[select_param]],
             ),
         )
     )
     map = tehsil_layer + state_layer + tooltip_layer
 else:
-    if select_param:
-        value = str(param_dict_rev[select_param]) + ":Q"
-        color_scheme = color_dict[param_dict_rev[select_param]]
+    df_vis_six = df_ungr_nc15[
+        (df_ungr_nc15["state"] == select_state)
+        & (df_ungr_nc15["soc_grp"] == select_soc_grp)
+        & (df_ungr_nc15["size_class"] == select_size_class)
+    ]
     map = (
         alt.Chart(data_geo_t)
         .mark_geoshape(stroke="black", strokeWidth=1)
@@ -130,14 +155,14 @@ else:
                 scale=alt.Scale(scheme=color_scheme),
                 title=select_param,
             ),
-            tooltip=["state:O", "district:O", value],
+            tooltip=["state:O", "tehsil:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
                 data=df_vis_six[df_vis_six["state"].isin([select_state])],
                 key="lgd_code",
-                fields=["state", "district", param_dict_rev[select_param]],
+                fields=["state", "tehsil", param_dict_rev[select_param]],
             )
             # ).transform_filter(
             #     alt.FieldEqualPredicate(
