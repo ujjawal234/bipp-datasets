@@ -34,8 +34,6 @@ data_geo_s = alt.topo_feature(state_url, "State_2020")
 # select by state
 select_state = st.selectbox("Select a State", states_drop)
 
-# parameter selection
-items = df_vis_six.columns
 # df of selected variables for non crop
 df_var_selected = pd.read_excel(os.path.abspath(path_ag + path_nc_var))
 df_var_selected = df_var_selected.iloc[:, 0:2]
