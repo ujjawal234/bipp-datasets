@@ -1,8 +1,27 @@
+import os
+
 import altair as alt
+import pandas as pd
 import streamlit as st
-from visualize import df_vis_six, states_drop
 
 path_ag = "./data/interim/agcensus_isb/"
+path_nc_var = "ag_census_2015_2016/non_crop_variables_selected.xlsx"
+path_six = "ag_census_2015_2016/mapped6_nc_15_16.csv"
+
+states_six = [
+    "punjab",
+    "maharashtra",
+    "jharkhand",
+    "chhattisgarh",
+    "odisha",
+    "karnataka",
+]
+states_drop = ["All six states"] + states_six
+
+df_nc15 = pd.read_csv(
+    os.path.abspath(path_ag + path_six), index_col=0
+)  # ungrouped df for all states and mapped for six states
+df_vis_six = df_nc15[df_nc15["state"].isin(states_six)]  # df for visualisation
 
 tehsil_url = "https://raw.githubusercontent.com/Shahbaz67/bipp_personal/main/Tehsil_2020_v2_topo.json"
 data_geo_t = alt.topo_feature(tehsil_url, "Tehsil_2020_v2_new")
@@ -12,8 +31,44 @@ state_url = (
 )
 data_geo_s = alt.topo_feature(state_url, "State_2020")
 
-select = st.selectbox("Select a State", states_drop)
-if select == "All six states":
+# select by state
+select_state = st.selectbox("Select a State", states_drop)
+
+# parameter selection
+items = df_vis_six.columns
+# df of selected variables for non crop
+df_var_selected = pd.read_excel(os.path.abspath(path_ag + path_nc_var))
+df_var_selected = df_var_selected.iloc[:, 0:2]
+index = [10, 11, 12, 13, 18, 19, 20, 21, 35, 37, 48, 49, 50]
+parameter = [df_var_selected["Variable Name"][i] for i in index]
+description = [df_var_selected["Description"][i] for i in index]
+
+# select parameter by parameter description
+select_param = st.selectbox("select a parameter", description)
+
+param_dict = dict(zip(parameter, description))
+param_dict_rev = dict(zip(param_dict.values(), param_dict.keys()))
+colors = [
+    "yelloworangered",
+    "yelloworangebrown",
+    "yellowgreen",
+    "yellowgreenblue",
+    "redpurple",
+    "purplered",
+    "purpleblue",
+    "purplebluegreen",
+    "greys",
+    "blues",
+    "goldred",
+    "goldorange",
+    "goldgreen",
+]
+color_dict = dict(zip(parameter, colors))
+
+if select_state == "All six states":
+    if select_param:
+        value = str(param_dict_rev[select_param]) + ":Q"
+        color_scheme = color_dict[param_dict_rev[select_param]]
     # state
     state_layer = (
         alt.Chart(data_geo_s)
@@ -26,19 +81,19 @@ if select == "All six states":
         .mark_geoshape(stroke="black", strokeWidth=1)
         .encode(
             color=alt.Color(
-                "hold_no:Q",
+                value,
                 type="quantitative",
-                scale=alt.Scale(scheme="yelloworangered"),
-                title="no. of holdings",
+                scale=alt.Scale(scheme=color_scheme),
+                title=select_param,
             ),
-            tooltip=["state:O", "district:O", "hold_no:Q", "hold_ar:Q"],
+            tooltip=["state:O", "district:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
                 data=df_vis_six,
                 key="lgd_code",
-                fields=["state", "district", "hold_no", "hold_ar"],
+                fields=["state", "district", param_dict_rev[select_param]],
             ),
         )
         .properties(width=800, height=800)
@@ -50,38 +105,41 @@ if select == "All six states":
             fillOpacity=0,
         )
         .encode(
-            color="hold_no:Q",
-            tooltip=["state:O", "district:O", "hold_no:Q", "hold_ar:Q"],
+            color=value,
+            tooltip=["state:O", "district:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
                 data=df_vis_six,
                 key="lgd_code",
-                fields=["state", "district", "hold_no", "hold_ar"],
+                fields=["state", "district", param_dict_rev[select_param]],
             ),
         )
     )
     map = tehsil_layer + state_layer + tooltip_layer
 else:
+    if select_param:
+        value = str(param_dict_rev[select_param]) + ":Q"
+        color_scheme = color_dict[param_dict_rev[select_param]]
     map = (
         alt.Chart(data_geo_t)
         .mark_geoshape(stroke="black", strokeWidth=1)
         .encode(
             color=alt.Color(
-                "hold_no:Q",
+                value,
                 type="quantitative",
-                scale=alt.Scale(scheme="yelloworangered"),
-                title="no. of holdings",
+                scale=alt.Scale(scheme=color_scheme),
+                title=select_param,
             ),
-            tooltip=["state:O", "district:O", "hold_no:Q", "hold_ar:Q"],
+            tooltip=["state:O", "district:O", value],
         )
         .transform_lookup(
             lookup="properties.Sb_Dt_LGD",
             from_=alt.LookupData(
-                data=df_vis_six[df_vis_six["state"].isin([select])],
+                data=df_vis_six[df_vis_six["state"].isin([select_state])],
                 key="lgd_code",
-                fields=["state", "district", "hold_no", "hold_ar"],
+                fields=["state", "district", param_dict_rev[select_param]],
             )
             # ).transform_filter(
             #     alt.FieldEqualPredicate(

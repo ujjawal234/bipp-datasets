@@ -24,8 +24,8 @@ geopandas = {path = "geopandas-dependencies/geopandas-0.9.0-py3-none-any.whl"}
 altair-viewer = "^0.3.0"
 streamlit = "^0.83.0"
 fuzzywuzzy = "^0.18.0"
-xlrd = "^2.0.1"
 openpyxl = "^3.0.7"
+styleframe = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

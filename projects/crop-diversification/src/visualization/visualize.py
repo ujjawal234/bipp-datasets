@@ -132,7 +132,7 @@ fig = state_mp(
 )
 
 st.title("AgCensus Visualisation:")
-# st.subheader("Analize data at various levels")
+# # st.subheader("Analize data at various levels")
 st.altair_chart(fig, use_container_width=True)
 
 # st.sidebar.title("Agcensus variable analysis:")
