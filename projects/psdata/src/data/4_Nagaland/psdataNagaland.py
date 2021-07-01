@@ -118,6 +118,13 @@ class psdataNagalandscraper(scrapy.Spider):
         table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
         table_list = table_list.iloc[1:, 0:]
 
+        file_path = (
+            self.parent_folder + "/" + "4_Nagaland" + "/" + response.meta["ac_names"]
+        )
+        file_name = response.meta["ac_names"] + ".csv"
+        self.directory(file_path)
+        table_list.to_csv(file_path + "/" + file_name, index=False)
+
     def directory(self, file_path):
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
