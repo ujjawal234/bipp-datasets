@@ -22,10 +22,10 @@ fiona = {path = "geopandas-dependencies/Fiona-1.8.20-cp39-cp39-win_amd64.whl"}
 shapely = {path = "geopandas-dependencies/Shapely-1.7.1-cp39-cp39-win_amd64.whl"}
 geopandas = {path = "geopandas-dependencies/geopandas-0.9.0-py3-none-any.whl"}
 altair-viewer = "^0.3.0"
-streamlit = "^0.83.0"
 fuzzywuzzy = "^0.18.0"
 openpyxl = "^3.0.7"
 styleframe = "^4.0.0"
+streamlit = "^0.84.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

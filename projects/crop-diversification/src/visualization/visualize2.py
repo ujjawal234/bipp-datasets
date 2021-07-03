@@ -30,18 +30,32 @@ state_url = (
 )
 data_geo_s = alt.topo_feature(state_url, "State_2020")
 
+st.set_page_config(
+    "Agcensus Dashboard",
+    layout="wide",
+    page_icon="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn7yzSFLaw-ohj9VePWzYRzS2tfNLJLBOzWw&usqp=CAU",
+)
 st.title("AgCensus Visualisation:")
 st.sidebar.title("Filter data")
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
+        width: 250px;
+    }
+    """,
+    unsafe_allow_html=True,
+)
 
 # select by social group (crop & non crop)
 soc_gr = df_nc_ungr_nc15["soc_grp"].unique()
 myorder_soc = [4, 0, 1, 3, 2]
-soc_gr = x = [soc_gr[i] for i in myorder_soc]
+soc_gr = soc_gr[myorder_soc]
 
 # select by size class (crop & non crop)
 size_class = df_nc_ungr_nc15["size_class"].unique()
 myorder_size = [15, 2, 4, 7, 11, 14]
-size_class = [size_class[i] for i in myorder_size]
+size_class = size_class[myorder_size]
 
 # select parameter by parameter description (non crop only)
 # df of selected variables for non crop
@@ -85,25 +99,31 @@ param_dict_rev_crop = dict(zip(param_dict_crop.values(), param_dict_crop.keys())
 colors_crop = ["yelloworangered", "goldred", "goldorange", "goldgreen"]
 color_dict_crop = dict(zip(parameter_crop, colors_crop))
 
+select_state, select_param = st.beta_columns(2)
 # Filter options
-select_state = st.selectbox("Select a State", states_drop)
+select_state = select_state.selectbox("Select a State", states_drop)
+# select_state.selectbox("Select a State", states_drop)
 select_crop = st.sidebar.selectbox("Crop Type", ["Crop", "Non-Crop"])
 select_soc_grp = st.sidebar.radio("Pick a social group", soc_gr)
 select_size_class = st.sidebar.radio("Pick a size class", size_class)
 
 # Dashboard setup
 if select_crop == "Non-Crop":
-    select_param = st.selectbox("select a parameter for non-crop", description)
-    value = str(param_dict_rev[select_param]) + ":Q"
-    color_scheme = color_dict[param_dict_rev[select_param]]
+    select_param = select_param.selectbox(
+        "select a parameter for non-crop", description
+    )
     df = df_nc_ungr_nc15
     field = param_dict_rev
+    value = str(field[select_param]) + ":Q"
+    color_scheme = color_dict[field[select_param]]
 else:
-    select_param = st.selectbox("select a parameter for crop", description_crop)
-    value = str(param_dict_rev_crop[select_param]) + ":Q"
-    color_scheme = color_dict_crop[param_dict_rev_crop[select_param]]
+    select_param = select_param.selectbox(
+        "select a parameter for crop", description_crop
+    )
     df = df_c_ungr_nc15
     field = param_dict_rev_crop
+    value = str(field[select_param]) + ":Q"
+    color_scheme = color_dict_crop[field[select_param]]
 
 # select_state, select_param = st.beta_columns([1,1])
 
@@ -135,6 +155,16 @@ if select_state == "All six states":
         .encode(
             color=alt.Color(
                 value,
+                legend=alt.Legend(
+                    type="symbol",
+                    tickCount=10,
+                    symbolType="square",
+                    labelOverlap=False,
+                    symbolSize=500,
+                    columnPadding=0,
+                    rowPadding=0,
+                    symbolStrokeWidth=0,
+                ),
                 type="quantitative",
                 scale=alt.Scale(scheme=color_scheme),
                 title=field[select_param],
@@ -183,6 +213,16 @@ else:
         .encode(
             color=alt.Color(
                 value,
+                legend=alt.Legend(
+                    type="symbol",
+                    tickCount=10,
+                    symbolType="square",
+                    labelOverlap=False,
+                    symbolSize=500,
+                    columnPadding=0,
+                    rowPadding=0,
+                    symbolStrokeWidth=0,
+                ),
                 type="quantitative",
                 scale=alt.Scale(scheme=color_scheme),
                 title=field[select_param],
