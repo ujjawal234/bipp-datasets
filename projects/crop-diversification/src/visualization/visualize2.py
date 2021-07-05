@@ -100,15 +100,24 @@ param_dict_crop = dict(zip(parameter_crop, description_crop))
 param_dict_rev_crop = dict(zip(param_dict_crop.values(), param_dict_crop.keys()))
 colors_crop = ["yelloworangered", "goldred", "goldorange", "goldgreen"]
 color_dict_crop = dict(zip(parameter_crop, colors_crop))
+crop_names = [
+    "paddy(101)",
+    "wheat(106)",
+    "maize(104)",
+    "tur (arhar)(202)",
+    "onion(708)",
+]
 
 select_year, select_state, select_param = st.beta_columns([4, 3, 5])
+
 # Filter options
 select_year = select_year.multiselect(
     "Select year", ["2010-11", "2015-16"], default=["2010-11", "2015-16"]
 )
 select_state = select_state.selectbox("Select a State", states_drop)
-# select_state.selectbox("Select a State", states_drop)
-select_crop = st.sidebar.selectbox("Crop Type", ["Non-Crop", "Crop"])
+select_crop_type = st.sidebar.radio("Crop Type", ["Non-Crop", "Crop"])
+if select_crop_type == "Crop":
+    select_crop_name = st.sidebar.selectbox("Crop Name", crop_names)
 select_soc_grp = st.sidebar.radio("Pick a social group", soc_gr)
 select_size_class = st.sidebar.radio("Pick a size class", size_class)
 
@@ -120,14 +129,23 @@ def load_data(data, state):
 
 @st.cache
 def filter_data(data):
-    return data[
-        (data["soc_grp"] == select_soc_grp) & (data["size_class"] == select_size_class)
-    ]
+    if select_crop_type == "Non-Crop":
+        data = data[
+            (data["soc_grp"] == select_soc_grp)
+            & (data["size_class"] == select_size_class)
+        ]
+    else:
+        data = data[
+            (data["soc_grp"] == select_soc_grp)
+            & (data["size_class"] == select_size_class)
+            & (data["crop_name"] == select_crop_name)
+        ]
+    return data
 
 
 # map generate function
 @st.cache(allow_output_mutation=True)
-def generate_map(df, width, height):
+def generate_map(df):
     if select_state == "All six states":
         # df_vis = load_data(df, states_six)
         df_vis = filter_data(df)
@@ -135,7 +153,7 @@ def generate_map(df, width, height):
         state_layer = (
             alt.Chart(data_geo_s)
             .mark_geoshape(fillOpacity=0, stroke="white")
-            .properties(width=width, height=height)
+            .properties(height=700)
         )
         alt.data_transformers.disable_max_rows()
 
@@ -170,7 +188,7 @@ def generate_map(df, width, height):
                     fields=["state", "tehsil", field[select_param]],
                 ),
             )
-            .properties(width=width, height=height)
+            .properties(height=700)
         )
         alt.data_transformers.disable_max_rows()
 
@@ -228,14 +246,14 @@ def generate_map(df, width, height):
                     fields=["state", "tehsil", field[select_param]],
                 ),
             )
-            .properties(width=width, height=height)
+            .properties(height=700)
         )
         alt.data_transformers.disable_max_rows()
     return map
 
 
 # Dashboard setup
-if select_crop == "Non-Crop":
+if select_crop_type == "Non-Crop":
     select_param = select_param.selectbox(
         "select a parameter for non-crop", description
     )
@@ -243,13 +261,16 @@ if select_crop == "Non-Crop":
     value = str(field[select_param]) + ":Q"
     color_scheme = color_dict[field[select_param]]
     if select_year == ["2010-11"]:
-        map = generate_map(df_ungr_nc10, 700, 700)
+        map = generate_map(df_ungr_nc10)
     elif select_year == ["2015-16"]:
-        map = generate_map(df_nc_ungr_nc15, 700, 700)
+        map = generate_map(df_nc_ungr_nc15)
     else:
+        col1, col2 = st.beta_columns(2)
+        col1.write("2010-11")
+        col2.write("2015-16")
         map1, map2 = st.beta_columns(2)
-        map1 = generate_map(df_ungr_nc10, 450, 700)
-        map2 = generate_map(df_nc_ungr_nc15, 450, 700)
+        map1 = generate_map(df_ungr_nc10)
+        map2 = generate_map(df_nc_ungr_nc15)
         map = map1 | map2
 else:
     select_param = select_param.selectbox(
@@ -263,10 +284,9 @@ else:
             "No data available for crop (2010-11). Deselect year 2010 or change the crop type to Non-Crop from the left pane."
         )
     elif select_year == ["2015-16"]:
-        map = generate_map(df_c_ungr_nc15, 700, 700)
+        map = generate_map(df_c_ungr_nc15)
     else:
         st.text(
             "No data available for crop (2010-11). Deselect year 2010 or change the crop to Non-Crop type from the left pane."
         )
-
 st.altair_chart(map, use_container_width=True)
