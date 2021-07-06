@@ -35,15 +35,52 @@ st.sidebar.title("Filter data")
 
 
 # select by social group
-soc_gr = df_ungr_nc10["soc_grp"].unique()
-# myorder_soc = [4, 0, 1, 3, 2]
-# soc_gr = x = [soc_gr[i] for i in myorder_soc]
+soc_gr_code = df_ungr_nc10["soc_grp"].unique()
+soc_gr_code.sort()
+social_group = [
+    "Institutional",
+    "Others",
+    "Scheduled Caste",
+    "Scheduled Tribe",
+    "All Social Group",
+]
 
 
 # select by size class
-size_class = df_ungr_nc10["size_class"].unique()
-# myorder_size = [15, 2, 4, 7, 11, 14]
-# size_class = [size_class[i] for i in myorder_size]
+size_class_code = df_ungr_nc10["size_class"].unique()
+size_class_code.sort()
+order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0]
+size_class_code = [size_class_code[i] for i in order]
+size_class = [
+    "All Classes",
+    "Marginal",
+    "Small",
+    "Semi Medium",
+    "Medium",
+    "Large",
+    "Below 0.5",
+    "(0.5-1.0)",
+    "(1.0-2.0)",
+    "(2.0-3.0)",
+    "(3.0-4.0)",
+    "(4.0-5.0)",
+    "(5.0-7.5)",
+    "(7.5-10.0)",
+    "(10.0-20.0)",
+    "20 & Above",
+]
+
+
+def get_key_soc(val):
+    for value in social_group:
+        if val == value:
+            return social_group.index(value)
+
+
+def get_key_siz(val):
+    for value in size_class:
+        if val == value:
+            return size_class.index(value)
 
 
 # df of selected variables for non crop
@@ -77,8 +114,10 @@ color_dict = dict(zip(parameter, colors))
 
 # Filter options
 select_state = st.selectbox("Select a State", states_drop)
-select_soc_grp = st.sidebar.radio("Select a social group", soc_gr)
-select_size_class = st.sidebar.radio("Select a size class", size_class)
+soc_gr = st.sidebar.radio("Select a social group", social_group)
+select_soc_grp = soc_gr_code[get_key_soc(soc_gr)]
+siz_clas = st.sidebar.radio("Select a size class", size_class)
+select_size_class = size_class_code[get_key_siz(siz_clas)]
 
 
 # select parameter by parameter description
