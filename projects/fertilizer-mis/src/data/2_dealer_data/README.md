@@ -26,6 +26,8 @@
 ## Description of notebook
 
 1. **eda_of_dealer_data:** To perform initial investigations on data-exploratory data analysis
+2. **data_cleaning:** To clean the dealer data using pandas dataframes
+3. **data_creation:** To create the final dealer data after performing manual changes in the data
 ## How to run the notebook
 **Steps:**
 1. Install python
