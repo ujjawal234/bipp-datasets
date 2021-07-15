@@ -2,10 +2,13 @@
 from datetime import datetime
 from pathlib import Path
 
+import altair as alt
 import numpy as np
 import pandas as pd
 import pandas_profiling as pp
 import seaborn as sns
+
+alt.renderers.enable("mimetype")
 
 # reading the data
 project_dir = str(Path(__file__).resolve().parents[2])
