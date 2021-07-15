@@ -40,14 +40,52 @@ class psdataMaharshtrascraper(scrapy.Spider):
             )
 
     def ac_data(self, response):
+
         ac_names = response.xpath(
             '//select[@id="mainContent_AssemblyList"]/option/text()'
         ).extract()
         ac_values = response.xpath(
             '//select[@id="mainContent_AssemblyList"]/option/@value'
         ).extract()
-        # print(ac_names)
-        # print(ac_values)
+        form_dict1 = {
+            "__EVENTTARGET": "ctl00$mainContent$AssemblyList",
+            "__EVENTARGUMENT": "",
+            "__LASTFOCUS": "",
+            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract(),
+            "__EVENTVALIDATION": response.css(
+                "#__EVENTVALIDATION::attr(value)"
+            ).extract(),
+            "ctl00$mainContent$DistrictList": response.meta["district_code"],
+            "ctl00$mainContent$AssemblyList": "",
+            "ctl00$mainContent$LangList": "2",
+        }
+        i = 1
+        for ac in ac_values[1:]:
+            form_dict1["ctl00$mainContent$AssemblyList"] = ac
+            yield FormRequest.from_response(
+                response,
+                url="https://ceo.maharashtra.gov.in/Lists/ListPSs.aspx",
+                method="POST",
+                formdata=form_dict1,
+                # dont_click="True",
+                meta={
+                    "ac_names": ac_names[i],
+                    "dist_code": response.meta["district_code"],
+                },
+                callback=self.ps_newresponse,
+            )
+            i += 1
+            print(form_dict1)
+
+    def ps_newresponse(self, response):
+
+        ac_names = response.xpath(
+            '//select[@id="mainContent_AssemblyList"]/option/text()'
+        ).extract()
+        ac_values = response.xpath(
+            '//select[@id="mainContent_AssemblyList"]/option/@value'
+        ).extract()
+
         i = 1
         form_dict = {
             "ctl00$WebScriptManager": "ctl00$WebScriptManager|ctl00$mainContent$ReportViewer1$ctl09$Reserved_AsyncLoadTarget",
@@ -80,9 +118,8 @@ class psdataMaharshtrascraper(scrapy.Spider):
             "ctl00$mainContent$ReportViewer1$ctl09$ReportControl$ctl04": "100",
             "__ASYNCPOST": "true",
         }
-        # print(form_dict)
         for ac in ac_values[1:]:
-            form_dict["ctl00$mainContent$DistrictList"] = response.meta["district_code"]
+            form_dict["ctl00$mainContent$DistrictList"] = response.meta["dist_code"]
             form_dict["ctl00$mainContent$AssemblyList"] = ac
             yield FormRequest.from_response(
                 response,
@@ -93,11 +130,11 @@ class psdataMaharshtrascraper(scrapy.Spider):
                 meta={"ac_names": ac_names[i]},
                 callback=self.save_data,
             )
-            print(form_dict)
             i += 1
 
     def save_data(self, response):
-        print(response.text)
+        pass
+        # print(response.text)
         # table_list= pd.read_html(response.text)
         # print(table_list)
 
