@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "{{cookiecutter.project_name}}"
+name = "fertilizer-mis-1"
 version = "0.1.0"
-description = "{{cookiecutter.description}}"
-authors = ["{{cookiecutter.authors}}"]
+description = "This repo contains scrapers, cleaning scripts and data transformation scripts for fertilizer-mis database."
+authors = ["Amrit,Ishita"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -10,6 +10,7 @@ python-dotenv = "^0.13.0"
 click = "^7.1.2"
 pandas = "^1.0.5"
 numpy = "^1.19.0"
+Scrapy = "^2.5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
