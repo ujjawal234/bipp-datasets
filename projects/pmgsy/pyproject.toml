@@ -5,12 +5,14 @@ description = "This repo will have code to scrape, clean and transform the PMGSY
 authors = ["akshat shukla, surya kandukuri"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 python-dotenv = "^0.13.0"
 click = "^7.1.2"
 pandas = "^1.0.5"
 numpy = "^1.19.0"
 Scrapy = "^2.5.0"
+html5lib = "^1.1"
+bs4 = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -5,7 +5,7 @@ description = ""
 authors = ["Surya Kandukuri <surya_kandukuri@isb.edu>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 
 [tool.poetry.dev-dependencies]
 
