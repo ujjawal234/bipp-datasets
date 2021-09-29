@@ -36,6 +36,7 @@ class psdataTripurascraper(scrapy.Spider):
             i += 1
 
     def save_data(self, response):
+        # This function gets list of psdata for all the constituencies and saves the data.
         final_table = response.xpath(
             '//select[@id="ddPartNoName"]/option/text()'
         ).extract()
@@ -50,6 +51,7 @@ class psdataTripurascraper(scrapy.Spider):
         table_list.to_csv(file_path + "/" + file_name, index=False)
 
     def directory(self, file_path):
+        # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
