@@ -18,7 +18,7 @@ class Consolidation_Script:
     # print(parent_folder)
 
     def FileConsolidator(self, state_name, year_of_data):
-
+        # This function combines all individual ac_files into single file for the states of Odisha, Tripura, Nagaland and Meghalaya.
         state_path = self.parent_folder + "/" + str(state_name)
         directory = state_path
         # path generator for all csv files in raw_dir
@@ -55,12 +55,11 @@ class Consolidation_Script:
         df_combined.to_csv(file_path + "/" + file_name, index=False)
 
     def final_directory(self, file_path):
+        # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
             Path(present_path).mkdir(exist_ok=True)
-
-    # logic to consolidate all the files should come here
 
 
 @click.command()
