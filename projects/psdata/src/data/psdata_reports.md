@@ -1,6 +1,8 @@
 # Polling Station Data Project Reports 
-## **Description -** Scraping Data from various sources, cleaning data and concatenating it into final CSV file.
-## **Branch -** feat_psdata_kriti
+## **Description -** 
+Scraping Data from various sources, cleaning data and concatenating it into final CSV file.
+## **Branch -** 
+feat_psdata_kriti
 
 # **Data Sources-** 
 ## The data was scraped from the following websites:
@@ -15,7 +17,7 @@
 1. psdataStateName.py scripts in the src/data folder are used to scrape polling station data for each particular state.
 2. Scripts for consolidating assembly constituency files for each state as well as on combined file are also present under src/data folder.
 
-# ** To Run Scrpits-**
+# **To Run Scrpits-**
 1. Install Python
 2. Install required packages
 3. Run using python<file_name>.py
