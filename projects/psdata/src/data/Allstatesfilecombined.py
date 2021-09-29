@@ -12,7 +12,7 @@ class Consolidation_Script:
     parent_folder_new = project_dir_new + "/data/processed/All_States/"
 
     def FileConsolidator(self):
-
+        # This funtion contains logic to consilidated files of all the states into one file and saving final data as CSV file.
         state_path = self.parent_folder
         directory = state_path
         # path generator for all csv files in raw_dir
@@ -30,6 +30,7 @@ class Consolidation_Script:
         df_final.to_csv(file_path + "/" + file_name, index=False)
 
     def final_directory(self, file_path):
+        # # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
