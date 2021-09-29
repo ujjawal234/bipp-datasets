@@ -22,11 +22,6 @@ class psdataOrrisascraper(scrapy.Spider):
     def parse(self, response):
         # "This fuction will parse the names of all the districts in the state and will raise another request to get all ACS in the district."
 
-        # dist_names = response.xpath(
-        # '//select[@id="ddlDistrict"]/option/text()'
-        # ).extract()
-        # print(dist_names)
-
         dist_values = response.xpath(
             '//select[@id="ddlDistrict"]/option/@value'
         ).extract()
@@ -65,7 +60,7 @@ class psdataOrrisascraper(scrapy.Spider):
             i += 1
 
     def ac_parser(self, response):
-
+        # This function gets the list assembly constituencies and raises another request to get ps_data of each constituency.
         ac_list = response.xpath('//select[@id="ddlAC"]/option/text()').extract()
         ac_values = response.xpath('//select[@id="ddlAC"]/option/@value').extract()
         # print(ac_list)
@@ -104,6 +99,7 @@ class psdataOrrisascraper(scrapy.Spider):
             i += 1
 
     def save_data(self, response):
+        # This function gets list of psdata for all the constituencies and saves the data.
         final_table = response.xpath('//select[@id="ddlPart"]/option/text()').extract()
         # print(final_table)
         table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
@@ -117,6 +113,7 @@ class psdataOrrisascraper(scrapy.Spider):
         table_list.to_csv(file_path + "/" + file_name, index=False)
 
     def directory(self, file_path):
+        # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
