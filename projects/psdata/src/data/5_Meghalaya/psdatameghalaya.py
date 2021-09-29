@@ -3350,6 +3350,7 @@ class psdataMeghalayascraper(scrapy.Spider):
         }
         i = 1
         for key in psdata_dict:
+            # Creating the df for each constituency and saving df as CSV files.
             df = pd.DataFrame(columns=["Polling Station Name"])
             column = df.columns[0]
             df[column] = psdata_dict[key]
@@ -3360,6 +3361,7 @@ class psdataMeghalayascraper(scrapy.Spider):
             i += 1
 
     def directory(self, file_path):
+        # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
