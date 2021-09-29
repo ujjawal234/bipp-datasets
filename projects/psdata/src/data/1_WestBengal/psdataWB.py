@@ -11,14 +11,10 @@ class psdataWBscraper(scrapy.Spider):
     project_dir = str(Path(__file__).resolve().parents[2])
     parent_folder = project_dir + "/data/raw/"
     print(parent_folder)
-
     start_urls = ["https://www.elections.in/west-bengal/polling-booths/"]
 
     def parse(self, response):
-
-        # print(response.text)
-        # table_ps= response.css('body > div.container-fluid > div > div:nth-child(11) > div > div.col-md-9.mainleft > div > div.mob-table > table.tableizer-table').extract()
-
+        # This function extracts links to various assembly constituencies in West_Bengal and gets the ps_data table for each constituency
         table_ps = response.css(
             "td:nth-child(8) a::attr(href) , td:nth-child(6) a::attr(href) , td:nth-child(4) a::attr(href) , td:nth-child(2) a::attr(href)"
         ).extract()
@@ -34,7 +30,7 @@ class psdataWBscraper(scrapy.Spider):
             i += 1
 
     def save_data(self, response):
-
+        # This function collects the final response, checks for any exceptions and saves the data of each constituency in csv format. The exception case data is stored in a .txt file.
         final_table = response.css("table.tableizer-table").get()
 
         if final_table:
@@ -74,6 +70,7 @@ class psdataWBscraper(scrapy.Spider):
             text_list.to_string(file_path + "/" + file_name)
 
     def directory(self, file_path):
+        # This function creates directory and appropriate file path to save the data.
         path_parts = file_path.split("/")
         for i in range(1, len(path_parts) + 1):
             present_path = "/".join(path_parts[:i])
