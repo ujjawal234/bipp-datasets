@@ -13,6 +13,7 @@ numpy = "^1.19.0"
 selenium = "^3.141.0"
 bs4 = "^0.0.1"
 html5lib = "^1.1"
+webdriver-manager = "^3.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
