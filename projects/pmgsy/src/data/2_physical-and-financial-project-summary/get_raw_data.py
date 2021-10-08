@@ -19,7 +19,9 @@ class PmgsyScraper(scrapy.Spider):
 
         self.project_dir = str(Path(__file__).resolve().parents[3])
         # print(self.project_dir)
-        self.parent_folder = self.project_dir + "/data/raw/" + self.project_name + "/"
+        self.parent_folder = (
+            self.project_dir + "/data/raw/" + self.project_name + "/"
+        )
         self.output_dir = self.parent_folder + "output_files/"
         self.dataset = []
         self.failed_requests = []
@@ -214,9 +216,9 @@ class PmgsyScraper(scrapy.Spider):
         meta_data["filename"] = None
         if road_data.shape[0] > 4:
             file_path = self.output_dir
-            file_name = hashlib.md5(json.dumps(meta_data).encode("utf8")).hexdigest()[
-                :15
-            ]
+            file_name = hashlib.md5(
+                json.dumps(meta_data).encode("utf8")
+            ).hexdigest()[:15]
             road_data.to_csv(file_path + file_name + ".csv")
             meta_data["filename"] = file_name
 
@@ -231,7 +233,12 @@ class PmgsyScraper(scrapy.Spider):
                 + "/"
                 + str(meta_data["year_dict"][meta_data["year"]])
             )
-            file_name = meta_data["batch_name"] + "_" + meta_data["colab_name"] + ".csv"
+            file_name = (
+                meta_data["batch_name"]
+                + "_"
+                + meta_data["colab_name"]
+                + ".csv"
+            )
             self.ensure_directory(file_path)
             road_data.to_csv(file_path + "/" + file_name)
 
@@ -254,7 +261,9 @@ class PmgsyScraper(scrapy.Spider):
         request
         """
 
-        self.failed_requests.append((dict(response.meta), response.request.url))
+        self.failed_requests.append(
+            (dict(response.meta), response.request.url)
+        )
 
     def closed(self, reason):
         """
@@ -262,7 +271,10 @@ class PmgsyScraper(scrapy.Spider):
         """
 
         print("Saving all collected data[len:{}]...".format(len(self.dataset)))
-        json.dump(self.dataset, open(self.parent_folder + "scraped_dataset.json", "w"))
+        json.dump(
+            self.dataset,
+            open(self.parent_folder + "scraped_dataset.json", "w"),
+        )
 
         if self.failed_requests:
             print("Saving all errs[len:{}]".format(len(self.failed_requests)))
