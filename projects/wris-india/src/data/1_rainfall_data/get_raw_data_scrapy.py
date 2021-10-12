@@ -1,12 +1,12 @@
 # import datetime
 import json
-from datetime import date, timedelta
 from pathlib import Path
 
 # import pandas as pd
 import scrapy
 from scrapy import Request
 from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 
 
 class RainfallWris(scrapy.Spider):
@@ -19,16 +19,17 @@ class RainfallWris(scrapy.Spider):
     parent_folder = project_dir + "/data/raw/"
     print(parent_folder)
 
-    def __init__(self, input="inputargument", start_year=None, end_year=None):
+    def __init__(self):
         self.input = input  # source file name
-        self.star_year_input = start_year
-        self.end_year_input = end_year
+        print("NOTE: Enter yyyymmdd format for only current year data")
+        self.start_year_input = input(
+            "Enter the start year to download the data in yyyy or yyyymmdd format:"
+        )
+        self.end_year_input = input("Enter the end year in yyyy or yyyymmdd format:")
 
     def start_requests(self):
         # this is the request that will initiate the scraping the data
-        yield Request(
-            "https://wdo.indiawris.gov.in/api/comm/src/rainfall_report"
-        )
+        yield Request("https://wdo.indiawris.gov.in/api/comm/src/rainfall_report")
 
     def parse(self, response):
 
@@ -98,20 +99,16 @@ class RainfallWris(scrapy.Spider):
         # print(self.district_data)
 
     def station_parser(self, response):
-        # print(response.text)
         self.station_data = json.loads(response.text)
         print("Station Data")
-        # print(self.station_data)
-        # print(self.state_data["INDIA"])
-        # print(self.station_data)
         for state in self.state_data["INDIA"]:
-            print("State %s", state)
+            print("State ", state)
             state_name = state["name"]
             state_uid = state["uuid"]
             for district_entity in self.district_data[state["name"]]:
                 district_name = district_entity["name"]
                 district_uid = district_entity["uuid"]
-                try:
+                if self.station_data[district_name]:
                     for station_entity in self.station_data[district_name]:
                         print("Station " * 5)
                         print(station_entity["name"])
@@ -126,28 +123,19 @@ class RainfallWris(scrapy.Spider):
                             "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
                         }
 
-                        today_date = date.today()
-                        if (
-                            self.start_year_input & self.end_year_input
-                            == today_date.year
-                        ):
-                            start_date_value = input(
-                                "Enter the required date in yyyymmdd format"
-                            )
-                            # taking the previous day's date as end date
-                            end_date_value = (
-                                today_date - timedelta(days=1)
-                            ).strftime("yyyymmdd")
-                            print("Given Start Date is , %s", start_date_value)
-                            print("Given End Date is , %s", end_date_value)
+                        # today_date = date.today()
+                        # for current year, no iteration over years.
+                        print("Given Start Date is ,", self.start_year_input)
+                        print("Given End Date is ,", self.end_year_input)
+                        if len(str(self.start_year_input)) == 8:
                             station_complete_values = {
                                 "lType": "STATION",
                                 "src": "STATE_AND_CENTRAL_STATION",
                                 "view": "ADMIN",
                                 "aggr": "SUM",
                                 "reportType": "Station Wise Timeseries",
-                                "sDate": start_date_value,
-                                "eDate": end_date_value,
+                                "sDate": self.start_year_input,
+                                "eDate": self.end_year_input,
                                 "fileformat": "xls",
                                 "calendarFormat": "yyyyMMdd",
                                 "STATE": [state_uid],
@@ -169,21 +157,19 @@ class RainfallWris(scrapy.Spider):
                                     "state_name": state_name,
                                     "district_name": district_name,
                                     "station_name": station_name,
-                                    "start_year": station_complete_values[
-                                        "sDate"
-                                    ],
-                                    "end_year": station_complete_values[
-                                        "eDate"
-                                    ],
+                                    "start_year": station_complete_values["sDate"],
+                                    "end_year": station_complete_values["eDate"],
                                 },
                             )
 
                         else:
+                            self.start_year_input = int(self.start_year_input)
+                            self.end_year_input = int(self.end_year_input)
                             # this condition is to get historical data until 2020.
                             for year in range(
                                 self.start_year_input, self.end_year_input + 1
                             ):
-
+                                print("date compilation")
                                 start_date_value = str(year) + "0101"
                                 end_date_value = str(year) + "1231"
                                 station_complete_values = {
@@ -215,19 +201,14 @@ class RainfallWris(scrapy.Spider):
                                         "state_name": state_name,
                                         "district_name": district_name,
                                         "station_name": station_name,
-                                        "start_year": station_complete_values[
-                                            "sDate"
-                                        ],
-                                        "end_year": station_complete_values[
-                                            "eDate"
-                                        ],
+                                        "start_year": station_complete_values["sDate"],
+                                        "end_year": station_complete_values["eDate"],
                                     },
                                 )
 
-                except Exception as err:
-                    print(err)
+                else:
                     print(
-                        "ERROR: district not found %d, %d",
+                        "ERROR: district not found ",
                         district_name,
                         state_name,
                     )
@@ -264,19 +245,37 @@ class RainfallWris(scrapy.Spider):
         with open(filename, "wb") as f:
             f.write(response.body)
 
+    # custom_settings = {
+    #     DOWNLOADER_MIDDLEWARES :{
+    #         'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    #         'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
+    #         'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
+    #         'scrapy_fake_useragent.middleware.RetryUserAgentMiddleware': 401,
+    #     }
+    # }
+
 
 def main():
-    start_year_input = input(
-        "Enter the start year to download the data in yyyy format"
+
+    settings = get_project_settings()
+    settings.set("CUSTOM_SETTING", "Super Custom Setting")
+    settings.update(
+        {
+            # "CONCURRENT_REQUESTS": 1,
+            "ROBOTSTXT_OBEY": False,
+            # "AUTOTHROTTLE_ENABLED": True,
+            # "DOWNLOAD_DELAY": 1.5,
+            "BOT_NAME": "rainfallwris",
+            "DOWNLOADER_MIDDLEWARES": {
+                "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": 390,
+                "scrapy.downloadermiddlewares.retry.RetryMiddleware": 391,
+                "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
+                "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+            },
+        }
     )
-    end_year_input = input("Enter the end year in yyyy format")
-    process = CrawlerProcess()
-    process.crawl(
-        RainfallWris,
-        input="inputargument",
-        start_year=start_year_input,
-        end_year=end_year_input,
-    )
+    process = CrawlerProcess(settings)
+    process.crawl(RainfallWris)
     process.start()  # the script will pause here and wait for crawling to complete
 
 
