@@ -1,56 +1,45 @@
 import pandas as pd
 
-df = pd.read_csv("./data/raw/cleaned.csv")
-data = pd.DataFrame()
-ql = ["district_name", "tehsil_name"]
-# Creating Variables having one social class wise data each.
-d = (
-    df[df["social_group"] == "Scheduled Caste"]
-    .groupby(ql)
+# Reading Files and assigining variables, grouping data
+df = pd.read_csv("./data/raw/final_agcensus.csv")
+state_grp = df.groupby(["state_name"])
+dist_grp = df.groupby(["district_name"])
+tehsil_grp = df.groupby(["tehsil_name"])
+
+# Getting Variables from users
+state = input("Input State Name")
+district = input("Input District Name")
+
+# Aggregating data on the basis of state, district and tehsil
+state_data = (
+    state_grp.get_group(state)
+    .groupby(["state_name", "social_group"])
     .agg({"gca_unirr_ar_state": "sum"})
     .reset_index()
 )
-sc = (
-    df[df["social_group"] == "Scheduled Caste"]
-    .groupby("tehsil_name")
+district_data = (
+    dist_grp.get_group(district)
+    .groupby(["district_name", "social_group"])
     .agg({"gca_unirr_ar_state": "sum"})
     .reset_index()
 )
-st = (
-    df[df["social_group"] == "Scheduled Tribe"]
-    .groupby("tehsil_name")
-    .agg({"gca_unirr_ar_state": "sum"})
-    .reset_index()
-)
-sts = (
-    df[df["social_group"] == "Scheduled Tribes"]
-    .groupby("tehsil_name")
-    .agg({"gca_unirr_ar_state": "sum"})
-    .reset_index()
-)
-ins = (
-    df[df["social_group"] == "Institutional"]
-    .groupby("tehsil_name")
-    .agg({"gca_unirr_ar_state": "sum"})
-    .reset_index()
-)
-oth = (
-    df[df["social_group"] == "Others"]
-    .groupby("tehsil_name")
+tehsil_data = (
+    dist_grp.get_group(district)
+    .groupby(["tehsil_name", "social_group"])
     .agg({"gca_unirr_ar_state": "sum"})
     .reset_index()
 )
 
-# Combining two social class data
-finalst = st["gca_unirr_ar_state"] + sts["gca_unirr_ar_state"]
+# Printing final dataframe with all the values
+final = pd.concat([state_data, district_data, tehsil_data], axis=1)
+print(final)
 
-# Appending Columns into new dataframe
-data[["District Name", "Tehsil Name"]] = d[["district_name", "tehsil_name"]]
-data["Schedule Tribes"] = finalst
-data["Schedule Caste"] = sc["gca_unirr_ar_state"]
-data["Institutional"] = ins["gca_unirr_ar_state"]
-data["Others"] = oth["gca_unirr_ar_state"]
-
-# Finding District
-dist = input("Please enter district name")
-query2 = data[data["District Name"] == dist]
+# Asking user for saving file
+response = input("Want to save results to CSV")
+if response == "Y" or "y":
+    response2 = input("Type file name")
+    final.to_csv("./data/processed/%s.csv" % (response2))
+elif response == "N" or "n":
+    print("Not saving the data")
+else:
+    print("Please input the correct reponse")
