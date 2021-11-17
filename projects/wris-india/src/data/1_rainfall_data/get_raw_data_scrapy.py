@@ -108,12 +108,12 @@ class RainfallWris(scrapy.Spider):
             for district_entity in self.district_data[state["name"]]:
                 district_name = district_entity["name"]
                 district_uid = district_entity["uuid"]
-                if self.station_data[district_name]:
+                try:
                     for station_entity in self.station_data[district_name]:
                         print("Station " * 5)
-                        print(station_entity["name"])
-                        print(station_entity["uuid"])
-                        print(station_entity["sc"])
+                        # print(station_entity["name"])
+                        # print(station_entity["uuid"])
+                        # print(station_entity["sc"])
                         station_name = station_entity["name"]
                         # station_sc = station_entity["sc"]
                         station_uid = station_entity["uuid"]
@@ -125,8 +125,8 @@ class RainfallWris(scrapy.Spider):
 
                         # today_date = date.today()
                         # for current year, no iteration over years.
-                        print("Given Start Date is ,", self.start_year_input)
-                        print("Given End Date is ,", self.end_year_input)
+                        # print("Given Start Date is ,", self.start_year_input)
+                        # print("Given End Date is ,", self.end_year_input)
                         if len(str(self.start_year_input)) == 8:
                             station_complete_values = {
                                 "lType": "STATION",
@@ -206,7 +206,7 @@ class RainfallWris(scrapy.Spider):
                                     },
                                 )
 
-                else:
+                except KeyError:
                     print(
                         "ERROR: district not found ",
                         district_name,
@@ -220,6 +220,8 @@ class RainfallWris(scrapy.Spider):
 
         path = Path(
             self.parent_folder
+            + "/"
+            + "1_rainfall_data"
             + "/"
             + response.meta["state_name"]
             + "/"
@@ -239,9 +241,9 @@ class RainfallWris(scrapy.Spider):
             + response.meta["start_year"]
             + "_"
             + response.meta["end_year"]
-            + ".xls"
+            + ".xlsx"
         )
-
+        # print(type(response.body))
         with open(filename, "wb") as f:
             f.write(response.body)
 
@@ -262,16 +264,16 @@ def main():
     settings.update(
         {
             # "CONCURRENT_REQUESTS": 1,
-            "ROBOTSTXT_OBEY": False,
+            "ROBOTSTXT_OBEY": True,
             # "AUTOTHROTTLE_ENABLED": True,
             # "DOWNLOAD_DELAY": 1.5,
             "BOT_NAME": "rainfallwris",
-            "DOWNLOADER_MIDDLEWARES": {
-                "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": 390,
-                "scrapy.downloadermiddlewares.retry.RetryMiddleware": 391,
-                "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
-                "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
-            },
+            # "DOWNLOADER_MIDDLEWARES": {
+            #     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": 390,
+            #     "scrapy.downloadermiddlewares.retry.RetryMiddleware": 391,
+            #     "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
+            #     "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+            # },
         }
     )
     process = CrawlerProcess(settings)

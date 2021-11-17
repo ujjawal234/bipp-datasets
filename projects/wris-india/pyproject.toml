@@ -16,6 +16,9 @@ html5lib = "^1.1"
 webdriver-manager = "^3.4.2"
 Scrapy = "^2.5.0"
 scrapy-fake-useragent = "^1.4.4"
+ipykernel = "^6.4.1"
+pywin32 = "^302"
+xlrd = "1.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
