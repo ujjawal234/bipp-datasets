@@ -30,7 +30,3 @@ Monorepo Structure
 
 ------------
 The project structure is inspired by the following [article](https://medium.com/opendoor-labs/our-python-monorepo-d34028f2b6fa)
-
-```bash
-poetry run python ../../tools/data-gov-catalogs/scrape_catalog_data.py
-```
