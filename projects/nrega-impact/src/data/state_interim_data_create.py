@@ -17,6 +17,25 @@ def nrega_data_appender(path_name):
         TN = pd.read_csv(file, encoding="ISO8859")
         print(file.stem, " has been loaded.")
 
+        # removing works with deleted work_status
+        def work_status_filter(data):
+            data = data[data["work_status"].isin(["Completed", "Physically Completed"])]
+            data = data.drop("work_name", axis=1)
+            return data
+
+        TN = work_status_filter(TN)
+
+        # special state filters
+        def special_rows_filter(data):
+            if any(data["state"] == "KERALA"):
+                data = data[(data["block_name"] != "KURWAI")]
+            elif any(data["state"] == "TELANGANA"):
+                data = data[(data["panchayat_name"].notna())]
+
+            return data
+
+        TN = special_rows_filter(TN)
+
         # stripping trailing lines in strings
         def trail_strip(data):
             for i in data.select_dtypes(include="object").columns.tolist():
@@ -29,28 +48,68 @@ def nrega_data_appender(path_name):
 
         # removing digits and special characters from name strings
         def nrega_string_clean(data):
-            for i in ["panchayat_name", "block_name", "district", "state"]:
-                meta_char = r"\#|\&|\@|\$|\%|\^|\*|\(|\)|\)|\_|\+|\=|\\|\/|\?|\>|\<|\:|\;|\`|\~|\!"
-                if any(data[i].str.contains(r"\d+", regex=True)):
-                    data[i] = data[i].str.replace(r"\d+", "")
-                if any(data[i].str.contains(meta_char)):
-                    data[i] = data[i].str.replace(meta_char, "")
+            if file.stem != "RAJASTHAN":
+                for i in ["panchayat_name", "block_name", "district", "state"]:
+                    meta_char = r"\#|\&|\@|\$|\%|\^|\*|\(|\)|\)|\_|\+|\=|\\|\/|\?|\>|\<|\:|\;|\`|\~|\!"
+                    if any(data[i].str.contains(r"\d+", regex=True)):
+                        data[i] = data[i].str.replace(r"\d+", "")
+                    if any(data[i].str.contains(meta_char)):
+                        data[i] = data[i].str.replace(meta_char, "")
 
-            for i in [
-                "work_name",
-                "master_work_category_name",
-                "work_category_name",
-                "work_type",
-                "agency_name",
-            ]:
-                if any(data[i].str.contains(r"^<", regex=True)):
-                    data[i] = data[i].replace(r"<.*", np.nan, regex=True)
+                for i in [
+                    "master_work_category_name",
+                    "work_category_name",
+                    "work_type",
+                    "agency_name",
+                ]:
+                    if any(data[i].str.contains(r"^<", regex=True)):
+                        data[i] = data[i].replace(r"<.*", np.nan, regex=True)
+
+            else:
+                # importing devanagiri script to make unicode dictionary
+
+                print(
+                    "*********************Handling Dictionaries for",
+                    file.stem,
+                    "***************************",
+                )
+                devan = pd.read_csv(".\data\external\devanagiri.csv")
+
+                # creating unicode dictionary
+                uni_dict = dict(zip(devan["1_x"], devan["0"]))
+
+                # creating english dictionary
+                eng_dict = dict(zip(devan["0"], devan["1_y"]))
+
+                # mapping the unicode and english dictionary to the panchayat column of Rajasthan
+                print("Converting the strings of Panchayat Name in Rajasthan")
+                data["panchayat_name"] = data["panchayat_name"].str.replace("<U\+", "")
+                data["panchayat_name"] = data["panchayat_name"].str.split(r"\>")
+                data["panchayat_name"] = data["panchayat_name"].apply(
+                    lambda x: list(filter(None, x))
+                )
+                data["panchayat_name"] = data["panchayat_name"].map(
+                    lambda x: [uni_dict.get(k) for k in x]
+                )
+                data["panchayat_name"] = data["panchayat_name"].map(
+                    lambda x: [eng_dict.get(k) for k in x]
+                )
+                data["panchayat_name"] = data["panchayat_name"].apply(
+                    lambda x: list(filter(None, x))
+                )
+                data["panchayat_name"] = data["panchayat_name"].str.join(sep=",")
+                data["panchayat_name"] = data["panchayat_name"].str.replace(",", "")
+                data["panchayat_name"] = data["panchayat_name"].str.upper()
+
+                print("Rajasthan's Panchayat names have been cleaned")
+                print(
+                    "*************************************************************************"
+                )
 
             return data
 
         TN = nrega_string_clean(TN)
 
-        # rectifying date coumn types
         # rectifying date coumn types
         def date_cleaner(data):
             for i in ["work_started_date", "work_physically_completed_date"]:
@@ -85,16 +144,6 @@ def nrega_data_appender(path_name):
             return data
 
         TN = early_complete(TN)
-
-        # sending info on early_complete to an external list
-        def finish_data_maker(data):
-            finish_date_temp_data = pd.DataFrame(data["finished_when"].value_counts())
-            finish_date_temp_data = finish_date_temp_data.rename(
-                columns={"finished_when": file.stem}
-            )
-            finish_points.append(finish_date_temp_data)
-
-        finish_data_maker(TN)
 
         # ISID: Attempting to identify each row uniquely by a combination of column values
         def isid(
@@ -163,13 +212,23 @@ def nrega_data_appender(path_name):
                     str("data/interim/duplicate_entries/") + file.name, index=False
                 )
                 print(duplicates)
-                # data.loc[(data['dups2']==0), :]
+                data = data[(data["dups"] == 0)]
                 data.drop(["dups", "dups2"], axis=1)
             return data
 
         TN = isid(
             TN, ["block_name", "panchayat_name", "work_code", "work_started_date"]
         )
+
+        # sending info on early_complete to an external list
+        def finish_data_maker(data):
+            finish_date_temp_data = pd.DataFrame(data["finished_when"].value_counts())
+            finish_date_temp_data = finish_date_temp_data.rename(
+                columns={"finished_when": file.stem}
+            )
+            finish_points.append(finish_date_temp_data)
+
+        finish_data_maker(TN)
 
         # rearranging columns
         def col_rearrange(data):
@@ -188,7 +247,6 @@ def nrega_data_appender(path_name):
                 "total_mandays",
                 "no_of_units",
                 "is_secure",
-                "work_name",
                 "work_status",
                 "master_work_category_name",
                 "work_category_name",
@@ -202,8 +260,10 @@ def nrega_data_appender(path_name):
         TN = col_rearrange(TN)
 
         # sending the cleaned file to interim folder
+        print("Preview of", file.stem, "before CSV export:")
+        print(TN.head(25))
         TN.to_csv(str("data/interim/NREGA_assets/") + file.name, index=False)
-        print(file.stem, "has been exported as excel file to interim data directory")
+        print(file.stem, "has been exported as CSV file to interim data directory")
 
     # cleaning and exporting info from finish_data_maker to interim folder
     finish_file = pd.concat(finish_points, axis=1).reset_index()
@@ -214,15 +274,16 @@ def nrega_data_appender(path_name):
     finish_file = finish_file.pivot(
         index="State", columns="label", values="vals"
     ).reset_index()
+    finish_file["Total observations"] = finish_file.sum(axis=1)
     print(
         "The following table is the comparison of start date and end date of works for each state"
     )
     print(finish_file)
-    finish_file.to_excel("data/interim/finish_date.xlsx", index=False)
+    finish_file.to_csv("data/interim/finish_date.csv", index=False)
     print(
         "The comparison of start date and end date has been exported as excel file to the interim directory"
     )
-    print("Looping has ended. Check the directory data interim to find outputs")
+    print("Looping has ended. Check the directory data/interim to find outputs")
 
 
 nrega_data_appender(".")

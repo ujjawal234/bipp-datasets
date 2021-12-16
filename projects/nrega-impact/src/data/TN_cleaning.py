@@ -1,11 +1,34 @@
 import numpy as np
 import pandas as pd
 
-# import pathlib
-
-
 # Cleaning and Importing TN data
-TN = pd.read_csv("data/raw/NREGA_assets_raw/JAMMU AND KASHMIR.csv", encoding="ISO8859")
+TN = pd.read_csv("data/raw/NREGA_assets_raw/RAJASTHAN.csv")
+
+# removing works with deleted work_status
+
+
+def work_status_filter(data):
+    data = data[data["work_status"].isin(["Completed", "Physically Completed"])]
+    data = data.drop("work_name", axis=1)
+    return data
+
+
+TN = work_status_filter(TN)
+
+# special state filters
+
+
+def special_rows_filter(data):
+    if any(data["state"] == "KERALA"):
+        data = data[(data["block_name"] != "KURWAI")]
+    elif any(data["state"] == "TELANGANA"):
+        data = data[(data["panchayat_name"].notna())]
+
+    return data
+
+
+TN = special_rows_filter(TN)
+
 
 # stripping tariling lines in strings
 
@@ -15,6 +38,7 @@ def trail_strip(data):
         if any(data[i].str.contains("01-01-1900", regex=False)):
             data[i] = data[i].str.replace("01-01-1900", "")
         data[i] = data[i].str.rstrip()
+
     return data
 
 
@@ -33,7 +57,6 @@ def nrega_string_clean(data):
             data[i] = data[i].str.replace(meta_char, "")
 
     for i in [
-        "work_name",
         "master_work_category_name",
         "work_category_name",
         "work_type",
@@ -49,6 +72,8 @@ TN = nrega_string_clean(TN)
 
 
 # rectifying date coumn types
+
+
 def date_cleaner(data):
     for i in ["work_started_date", "work_physically_completed_date"]:
         if data[i].dtype == "O":
@@ -87,8 +112,9 @@ def early_complete(data):
 
 TN = early_complete(TN)
 
-
 # ISID: Attempting to identify each row uniquely by a combination of column values
+
+
 def isid(data, col_names):  # could avoid the col_names and give these cols as default
     data = data.set_index(col_names)
     if data.index.is_unique:
@@ -128,11 +154,11 @@ def isid(data, col_names):  # could avoid the col_names and give these cols as d
             data.loc[(data["dups2"] > 0), cols_names].sort_values(cols_names).tail(25)
         )
         print("Removing the duplicates")
-        duplicates = data[data["dups2"] > 0].sort_values(col_names)
-        duplicates.to_csv("data/interim/uttarakhand_duplicates.csv", index=False)
-        print(duplicates)
+        # duplicates = data[data["dups2"] > 0].sort_values(col_names)
+        # duplicates.to_csv("data/interim/uttarakhand_duplicates.csv", index=False)
+        # print(duplicates)
         # data.loc[(data['dups2']==0), :]
-        data.drop(["dups", "dups2"], axis=1)
+        # data.drop(["dups", "dups2"], axis=1)
     return data
 
 
@@ -156,7 +182,6 @@ def col_rearrange(data):
         "total_mandays",
         "no_of_units",
         "is_secure",
-        "work_name",
         "work_status",
         "master_work_category_name",
         "work_category_name",
@@ -175,4 +200,4 @@ TN.head(25)
 TN.dtypes
 TN.columns
 
-TN.to_csv("data/interim/NREGA_assets/MIZORAM.csv", index=False)
+TN.to_csv("data/interim/NREGA_assets/xxx.csv", index=False)
