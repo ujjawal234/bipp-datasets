@@ -9,8 +9,9 @@ import shutil
 
 # Getting the directories of the data folders
 project_folder = str(Path(__file__).resolve().parents[2])
-raw_folder =  project_folder + "/data/raw/2_physical-and-financial-project-summary"
-interim_folder = project_folder + "/data/interim/"
+raw_folder =  project_folder + r"/data/raw/2_physical-and-financial-project-summary"
+interim_folder = project_folder + r"/data/interim/"
+
 
 # defining empty file lists
 file_list = []
@@ -45,14 +46,15 @@ def datacleaning(file_path):
     """
     path_string = str(file_path)
     path_str_list = path_string.split("\\")
+    print(path_str_list)
     if len(path_str_list)==13:
         tehsil=path_str_list[-3]
-        district=path_str_list[-4]
-        state=path_str_list[-5]
+        district=path_str_list[-4].replace('+',' ')
+        state_list= path_str_list[-5].replace('+',' ')
     else:
         tehsil=path_str_list[-4]
-        district=path_str_list[-5]
-        state=path_str_list[-6]
+        district=path_str_list[-5].replace('+',' ')
+        state_list=path_str_list[-6].replace('+',' ')
     dest_path = path_string.replace("raw", "interim")
     dest_path_list = dest_path.split('\\')
     dest_path = ('\\').join(dest_path_list[:-1])
@@ -63,7 +65,7 @@ def datacleaning(file_path):
     cleaned_df = raw_df.iloc[1:,2:]
     cleaned_df.columns=cleaned_df.iloc[0]
     cleaned_df.reset_index(drop=True,inplace=True)
-    cleaned_df['state_name']=state
+    cleaned_df['state_name']=state_list
     cleaned_df=cleaned_df.replace('-','')
     cols=['Road Length','Total Population']
     for col in cols:
@@ -93,5 +95,5 @@ filteringpathnames(file_list)
 # 3. iterating through each path to clean the file
 
 for file in modified_file_list:
-    print(file)
-    datacleaning(file)
+     print(file)
+     datacleaning(file)
