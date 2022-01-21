@@ -31,6 +31,8 @@ def nrega_data_appender(path_name):
                 data = data[(data["block_name"] != "KURWAI")]
             elif any(data["state"] == "TELANGANA"):
                 data = data[(data["panchayat_name"].notna())]
+            elif any(data["state"] == "MADHYA PRADESH"):
+                data = data[(data["district"].notna())]
 
             return data
 
