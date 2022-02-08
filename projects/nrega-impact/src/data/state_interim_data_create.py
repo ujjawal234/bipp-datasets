@@ -48,6 +48,56 @@ def nrega_data_appender(path_name):
 
         TN = trail_strip(TN)
 
+        # function to remove unicodes from identifer names
+        def unicode_mapper(data):
+            # importing devanagiri script to make unicode dictionary tp reove unicodes from identifier columns in states other than Rajasthan
+            devan = pd.read_csv(".\data\external\devanagiri.csv")
+
+            # creating unicode dictionary
+            uni_dict = dict(zip(devan["1_x"], devan["0"]))
+
+            # creating english dictionary
+            eng_dict = dict(zip(devan["0"], devan["1_y"]))
+
+            for i in ["panchayat_name", "block_name", "district", "state"]:
+                if file.stem != "RAJASTHAN":
+
+                    # creating a seperate object with only unicode names
+                    data1 = data[data[i].str.contains("<U\+")][i]
+                    # creating a seperate object with only unicode names to serve as unicode mapper key to map unicode with transliterated values
+                    uni_actual_data = data[data[i].str.contains("<U\+")][i]
+
+                    if data1.shape[0] > 0:
+                        print(i)
+
+                        print(file.stem, "has unicodes in", i, ". Initiating repair")
+
+                        data1 = data1.str.replace("<U\+", "")
+                        data1 = data1.str.split(r"\>")
+                        data1 = data1.apply(lambda x: list(filter(None, x)))
+                        data1 = data1.map(lambda x: [uni_dict.get(k) for k in x])
+                        data1 = data1.map(lambda x: [eng_dict.get(k) for k in x])
+                        # removing nan values
+                        data1 = data1.apply(lambda x: [y for y in x if y == y])
+                        # removing None values
+                        data1 = data1.apply(
+                            lambda x: [y for y in x if str(y) != "None"]
+                        )
+
+                        data1 = data1.str.join(sep=",")
+                        data1 = data1.str.replace(",", "")
+                        data1 = data1.str.upper()
+
+                        # creating english dictionary
+                        dict_data = dict(zip(uni_actual_data, data1))
+                        # applying the dict on data
+                        data[i] = data[i].map(dict_data).fillna(data[i])
+
+                        print(file.stem, i, "have been cleaned")
+            return data
+
+        TN = unicode_mapper(TN)
+
         # removing digits and special characters from name strings
         def nrega_string_clean(data):
             if file.stem != "RAJASTHAN":

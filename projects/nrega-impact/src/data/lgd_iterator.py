@@ -32,16 +32,12 @@ lgd_list = []
 # loading in the state files
 
 
-def lgd_mapper(path_name):
+def block_lgd_mapper(path_name):
     print(
         "******************************************************LGD Mapping Initiating******************************************"
     )
 
     files = list(pathlib.Path(path_name).glob("./data/processed/*.csv"))
-
-    pathlib.Path(str(path_name + "/data/processed/lgd_mapped")).mkdir(
-        parents=False, exist_ok=True
-    )
 
     for file in files:
 
@@ -932,7 +928,7 @@ def lgd_mapper(path_name):
         result = pd.DataFrame(result, columns=["match", "score", "id"])
         result.drop("id", axis=1, inplace=True)
 
-        # creating a proxy dataframe with names of unmerged original name sof state_dist_block
+        # creating a proxy dataframe with names of unmerged original names of state_dist_block
         not_lgd_proxy_df = (
             pd.DataFrame(not_lgd_mapped["state_dist_block"], index=None)
             .reset_index()
@@ -1022,4 +1018,4 @@ def lgd_mapper(path_name):
     )
 
 
-lgd_mapper(".")
+block_lgd_mapper(".")

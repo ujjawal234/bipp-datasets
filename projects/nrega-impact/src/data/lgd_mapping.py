@@ -34,14 +34,14 @@ lgd["state_dist_block"] = lgd["state"] + lgd["district"] + lgd["block_name"]
 # loading in the state files
 
 
-def lgd_mapper(path_name):
+def block_lgd_mapper(path_name):
     print(
         "******************************************************LGD Mapping Initiating******************************************"
     )
 
     files = list(pathlib.Path(path_name).glob("./data/processed/*.csv"))
 
-    pathlib.Path(str(path_name + "/data/processed/lgd_mapped")).mkdir(
+    pathlib.Path(str(path_name + "/data/processed/block_lgd_mapped")).mkdir(
         parents=False, exist_ok=True
     )
 
@@ -1028,7 +1028,6 @@ def lgd_mapper(path_name):
         def column_sort(data):
             # setting arrangement of rows
             columns = [
-                "s_no",
                 "state",
                 "state_LGD_code",
                 "district",
@@ -1058,7 +1057,7 @@ def lgd_mapper(path_name):
 
         # writing state file to lgd_mapped directory
         print("Exporting", file.stem, "as CSV to directory")
-        df1.to_csv(str("./data/processed/lgd_mapped/" + file.name))
+        df1.to_csv(str("./data/processed/block_lgd_mapped/" + file.name), index=False)
 
     # converting the list into a final dataframe
     # **not_lgd=pd.concat(not_lgd_list, axis=0)
@@ -1075,4 +1074,4 @@ def lgd_mapper(path_name):
     )
 
 
-lgd_mapper(".")
+block_lgd_mapper(".")
