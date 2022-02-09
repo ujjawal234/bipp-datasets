@@ -11,6 +11,8 @@ click = "^7.1.2"
 pandas = "^1.0.5"
 numpy = "^1.19.0"
 ipykernel = "^6.8.0"
+fuzzywuzzy = "^0.18.0"
+fuzzymatcher = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
