@@ -32,7 +32,7 @@ class groundwaterdata(scrapy.Spider):
     raw_folder = project_dir + "/data/raw/"
     cluster_type = "idp"
 
-    print(raw_folder)
+    # print(raw_folder)
 
     def __init__(self):
         print("NOTE: Enter yyyy-mm-dd format for only current year data")
@@ -63,58 +63,87 @@ class groundwaterdata(scrapy.Spider):
             # en_date = datetime.datetime.strftime((singledate), "%Y-%m-%d")
             sDate = datetime.datetime.strftime(singledate, "%Y-%m-%d").replace("-", "")
             # eDate = datetime.datetime.strftime((singledate), "%Y-%m-%d").replace("-", "")
-            print("===========**===========")
-            print(sDate)
+            # print("===========**===========")
+            # print(sDate)
             # print(eDate)
+            rDate=singledate.strftime("%d-%m-%Y").replace("-", "")
+            print(rDate)
 
-            state_payload = {
-                "cType": "STATE",
-                "component": "groundwater",
-                "eDate": sDate,
-                "format": "yyyyMMdd",
-                "lType": "COUNTRY",
-                "lUUID": loc_uuid,
-                "locname": "INDIA",
-                "loctype": "COUNTRY",
-                "locuuid": loc_uuid,
-                "mapOnClickParams": "false",
-                "pUUID": loc_uuid,
-                "parentLocName": "INDIA",
-                "sDate": sDate,
-                "seasonYear": "2018",
-                "src": "STATE_AND_CENTRAL_STATION",
-                "summary": "false",
-                "telementryfilter": "All",
-                "type": "Depth to water level (DTW)",
-                "view": "ADMIN",
-                "ytd": "2021",
-            }
-            state_payload = json.dumps(state_payload)
-            headers = {
-                "Content-Type": "application/json"
-                # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
-            }
 
-            yield Request(
-                url="https://wdo.indiawris.gov.in/api/gw/gwTable",
-                method="POST",
-                callback=self.state_parser,
-                body=state_payload,
-                headers=headers,
-                meta={"start_date": singledate, "sDate": sDate},
+            y = singledate.year
+            m = singledate.strftime("%B")
+            state_filename = (
+            "state_"
+            + singledate.strftime("%d-%m-%Y").replace("-", "")
+            + ".csv"
             )
+
+            file_path_state = (
+                            imd_raw_folder
+                            + "/"
+                            + "state_level"
+                            + "/"
+                            + str(y)
+                            + "/"
+                            + str(m)
+                            +"/"
+                            +state_filename
+                        )
+            print(file_path_state)
+            
+            if Path(file_path_state).is_file():
+                print("YYEEESSS")
+                pass
+            else:
+                print("NOOOOOOO")
+                state_payload = {
+                    "cType": "STATE",
+                    "component": "groundwater",
+                    "eDate": sDate,
+                    "format": "yyyyMMdd",
+                    "lType": "COUNTRY",
+                    "lUUID": loc_uuid,
+                    "locname": "INDIA",
+                    "loctype": "COUNTRY",
+                    "locuuid": loc_uuid,
+                    "mapOnClickParams": "false",
+                    "pUUID": loc_uuid,
+                    "parentLocName": "INDIA",
+                    "sDate": sDate,
+                    "seasonYear": "2018",
+                    "src": "STATE_AND_CENTRAL_STATION",
+                    "summary": "false",
+                    "telementryfilter": "All",
+                    "type": "Depth to water level (DTW)",
+                    "view": "ADMIN",
+                    "ytd": "2021",
+                }
+                state_payload = json.dumps(state_payload)
+                headers = {
+                    "Content-Type": "application/json"
+                    # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
+                }
+
+                yield Request(
+                    url="https://wdo.indiawris.gov.in/api/gw/gwTable",
+                    method="POST",
+                    callback=self.state_parser,
+                    body=state_payload,
+                    headers=headers,
+                    meta={"start_date": singledate, "sDate": sDate},
+                )
 
     def state_parser(self, response):
         state_data_daily = pd.DataFrame(json.loads(response.text))
         state_data_daily["date"] = response.meta["start_date"].strftime("%d-%m-%Y")
         state_data_daily = state_data_daily.rename(columns={"name": "state_name"})
-        print(state_data_daily)
+        # print(state_data_daily)
         year = response.meta["start_date"].year
         month_name = response.meta["start_date"].strftime("%B")
-        print(
-            "Creating DataFrame at state level on ",
-            response.meta["start_date"],
-        )
+        # print(
+        #     "Creating DataFrame at state level on ",
+        #     response.meta["start_date"],
+        # )
 
         state_level_path = (
             imd_raw_folder
@@ -164,46 +193,76 @@ class groundwaterdata(scrapy.Spider):
         for i, row in state_data_daily.iterrows():
             state_name = row["state_name"]
             state_loc_id = row["uuid"]
-            district_payload = {
-                "cType": "DISTRICT",
-                "component": "groundwater",
-                "eDate": sDate,
-                "format": "yyyyMMdd",
-                "lType": "STATE",
-                "lUUID": state_loc_id,
-                "locname": state_name,
-                "loctype": "STATE",
-                "locuuid": state_loc_id,
-                "mapOnClickParams": "true",
-                "pUUID": state_loc_id,
-                "parentLocName": "INDIA",
-                "sDate": sDate,
-                "seasonYear": "2018",
-                "src": "STATE_AND_CENTRAL_STATION",
-                "summary": "false",
-                "telementryfilter": "All",
-                "type": "Depth to water level (DTW)",
-                "view": "ADMIN",
-                "ytd": "2021",
-            }
-            district_payload = json.dumps(district_payload)
-            headers = {
-                "Content-Type": "application/json"
-                # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
-            }
-            yield Request(
-                url="https://wdo.indiawris.gov.in/api/gw/gwTable",
-                method="POST",
-                callback=self.district_parser,
-                body=district_payload,
-                meta={
-                    "state_name": state_name,
-                    "state_loc_id": state_loc_id,
+
+            y = response.meta["start_date"].year
+            m = response.meta["start_date"].strftime("%B")
+            district_filename = (
+            state_name.lower()
+            + "_"
+            + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
+            + ".csv"
+        )
+
+            file_path_dis = (
+                        imd_raw_folder
+                        + "/"
+                        + "district_level"
+                        + "/"
+                        + state_name
+                        + "/"
+                        + str(y)
+                        + "/"
+                        + str(m)
+                        +"/"
+                        +district_filename
+                        )
+            print(file_path_dis)
+            
+            if Path(file_path_dis).is_file():
+                print("YYEEESSS")
+                # pass
+            else:
+                print("NOOOOOO")
+                district_payload = {
+                    "cType": "DISTRICT",
+                    "component": "groundwater",
+                    "eDate": sDate,
+                    "format": "yyyyMMdd",
+                    "lType": "STATE",
+                    "lUUID": state_loc_id,
+                    "locname": state_name,
+                    "loctype": "STATE",
+                    "locuuid": state_loc_id,
+                    "mapOnClickParams": "true",
+                    "pUUID": state_loc_id,
+                    "parentLocName": "INDIA",
                     "sDate": sDate,
-                    "start_date": response.meta["start_date"],
-                },
-                headers=headers,
-            )
+                    "seasonYear": "2018",
+                    "src": "STATE_AND_CENTRAL_STATION",
+                    "summary": "false",
+                    "telementryfilter": "All",
+                    "type": "Depth to water level (DTW)",
+                    "view": "ADMIN",
+                    "ytd": "2021",
+                }
+                district_payload = json.dumps(district_payload)
+                headers = {
+                    "Content-Type": "application/json"
+                    # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
+                }
+                yield Request(
+                    url="https://wdo.indiawris.gov.in/api/gw/gwTable",
+                    method="POST",
+                    callback=self.district_parser,
+                    body=district_payload,
+                    meta={
+                        "state_name": state_name,
+                        "state_loc_id": state_loc_id,
+                        "sDate": sDate,
+                        "start_date": response.meta["start_date"],
+                    },
+                    headers=headers,
+                )
 
     def district_parser(self, response):
         district_data_daily = pd.DataFrame(json.loads(response.text))
@@ -212,13 +271,13 @@ class groundwaterdata(scrapy.Spider):
         district_data_daily = district_data_daily.rename(
             columns={"name": "district_name"}
         )
-        print(district_data_daily)
+        # print(district_data_daily)
         year = response.meta["start_date"].year
         month_name = response.meta["start_date"].strftime("%B")
-        print(
-            "Creating DataFrame at state level on ",
-            response.meta["start_date"],
-        )
+        # print(
+        #     "Creating DataFrame at state level on ",
+        #     response.meta["start_date"],
+        # )
 
         distritct_level_path = (
             imd_raw_folder
@@ -279,47 +338,85 @@ class groundwaterdata(scrapy.Spider):
         for i, row in district_data_daily.iterrows():
             district_name = row["district_name"]
             district_loc_id = row["uuid"]
-            station_payload = {
-                "cType": "STATION",
-                "component": "groundwater",
-                "eDate": sDate,
-                "format": "yyyyMMdd",
-                "lType": "DISTRICT",
-                "lUUID": district_loc_id,
-                "locname": district_name,
-                "loctype": "DISTRICT",
-                "locuuid": district_loc_id,
-                "mapOnClickParams": "true",
-                "pUUID": district_loc_id,
-                "parentLocName": "INDIA",
-                "sDate": sDate,
-                "seasonYear": "2018",
-                "src": "STATE_AND_CENTRAL_STATION",
-                "summary": "false",
-                "telementryfilter": "All",
-                "type": "Depth to water level (DTW)",
-                "view": "ADMIN",
-                "ytd": "2021",
-            }
-            station_payload = json.dumps(station_payload)
-            headers = {
-                "Content-Type": "application/json"
-                # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
-            }
-            yield Request(
-                url="https://wdo.indiawris.gov.in/api/gw/gwTable",
-                method="POST",
-                callback=self.station_parser,
-                body=station_payload,
-                meta={
-                    "district_name": district_name,
-                    "state_name": response.meta["state_name"],
-                    "district_loc_id": district_loc_id,
+
+
+
+            y = response.meta["start_date"].year
+            m = response.meta["start_date"].strftime("%B")
+            station_filename = (
+            response.meta["state_name"].lower()
+            + "_"
+            + district_name.lower()
+            + "_"
+            + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
+            + ".csv"
+        )
+
+            file_path_station = (
+                        imd_raw_folder
+                        + "/"
+                        + "station_level"
+                        + "/"
+                        + response.meta["state_name"]
+                        + "/"
+                        + district_name
+                        + "/"
+                        + str(y)
+                        + "/"
+                        + str(m)
+                        + "/"
+                        + station_filename
+
+                        )
+            print(file_path_station)
+            
+            if Path(file_path_station).is_file():
+                print("YYEEESSS")
+                pass
+            else:
+                print("NOOOOO")
+                print(sDate)
+                station_payload = {
+                    "cType": "STATION",
+                    "component": "groundwater",
+                    "eDate": sDate,
+                    "format": "yyyyMMdd",
+                    "lType": "DISTRICT",
+                    "lUUID": district_loc_id,
+                    "locname": district_name,
+                    "loctype": "DISTRICT",
+                    "locuuid": district_loc_id,
+                    "mapOnClickParams": "true",
+                    "pUUID": district_loc_id,
+                    "parentLocName": "INDIA",
                     "sDate": sDate,
-                    "start_date": response.meta["start_date"],
-                },
-                headers=headers,
-            )
+                    "seasonYear": "2018",
+                    "src": "STATE_AND_CENTRAL_STATION",
+                    "summary": "false",
+                    "telementryfilter": "All",
+                    "type": "Depth to water level (DTW)",
+                    "view": "ADMIN",
+                    "ytd": "2021",
+                }
+                station_payload = json.dumps(station_payload)
+                headers = {
+                    "Content-Type": "application/json"
+                    # "Referer": "https://wdo.indiawris.gov.in/waterdataonline/analysis;selectedsidebar=downloadreport;component=All",
+                }
+                yield Request(
+                    url="https://wdo.indiawris.gov.in/api/gw/gwTable",
+                    method="POST",
+                    callback=self.station_parser,
+                    body=station_payload,
+                    meta={
+                        "district_name": district_name,
+                        "state_name": response.meta["state_name"],
+                        "district_loc_id": district_loc_id,
+                        "sDate": sDate,
+                        "start_date": response.meta["start_date"],
+                    },
+                    headers=headers,
+                )
 
     def station_parser(self, response):
         station_data_daily = pd.DataFrame(json.loads(response.text))
@@ -328,13 +425,13 @@ class groundwaterdata(scrapy.Spider):
         station_data_daily["district_name"] = response.meta["district_name"]
         station_data_daily["state_name"] = response.meta["state_name"]
         station_data_daily = station_data_daily.rename(columns={"name": "station_name"})
-        print(station_data_daily)
+        # print(station_data_daily)
         year = response.meta["start_date"].year
         month_name = response.meta["start_date"].strftime("%B")
-        print(
-            "Creating DataFrame at state level on ",
-            response.meta["start_date"],
-        )
+        # print(
+        #     "Creating DataFrame at state level on ",
+        #     response.meta["start_date"],
+        # )
 
         station_level_path = (
             imd_raw_folder
