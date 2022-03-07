@@ -82,7 +82,7 @@ for state in os.listdir(interim_path):
         dataframe.to_csv(save_path, index=False, encoding='utf-8')
 
 # store the final output
-dataset = []
+dataframe = []
 
 for state in os.listdir(interim_path):
     if state=='.gitkeep':
