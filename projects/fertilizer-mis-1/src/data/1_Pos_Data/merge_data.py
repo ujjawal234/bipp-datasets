@@ -37,7 +37,6 @@ for state in os.listdir(raw_path):
             temp_path = os.path.join(temp_path, state)
             temp_path = os.path.join(temp_path, year+'.csv')
             if os.path.isfile(temp_path):
-                print(temp_path)
                 continue
             dataframe = []
             for dis in os.listdir(state_path):
@@ -61,3 +60,41 @@ for state in os.listdir(raw_path):
             if not os.path.isdir(os.path.join('data/interim',state)):
                 os.mkdir(os.path.join('data/interim',state))
             dataframe.to_csv(temp_path, index=False, encoding='utf-8')
+
+# consolidate all years into one csv file for all states
+interim_path = 'data/interim'
+
+for state in os.listdir(interim_path):
+    if state=='.gitkeep':
+        continue
+    state_path = os.path.join(interim_path,state)
+    save_path = os.path.join(state_path,str(state)+'.csv')
+    if not os.path.isfile(save_path):
+        dataframe = []
+        for year in os.listdir(state_path):
+            year_path = os.path.join(state_path,year)
+            print(year_path)
+            df = pd.read_csv(year_path)
+            if len(dataframe)==0:
+                dataframe = df
+            else:
+                dataframe = pd.concat([dataframe, df], ignore_index=True)
+        dataframe.to_csv(save_path, index=False, encoding='utf-8')
+
+# store the final output
+dataset = []
+
+for state in os.listdir(interim_path):
+    if state=='.gitkeep':
+        continue
+    state_path = os.path.join(interim_path,state)
+    file_path = os.path.join(state_path,str(state)+'.csv')
+    print(file_path)
+    df = pd.read_csv(file_path)
+    if len(dataframe)==0:
+        dataframe = df
+    else:
+        dataframe = pd.concat([dataframe, df], ignore_index=True)
+
+# save the final consolidated file in an interim folder
+dataframe.to_csv('data/interim/merge_data.csv', index=False, encoding='utf-8')
