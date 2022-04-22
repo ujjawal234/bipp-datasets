@@ -338,9 +338,9 @@ else:
     print("Common ID not unique for Level 6")
 
 sl_no_labels = {
-    1: "total urban land outside the FSU",
-    2: "total homestead land owned",
-    3: "total land owned",
+    97: "total urban land outside the FSU",
+    98: "total homestead land owned",
+    99: "total land owned",
 }
 
 type_of_land_labels = {
