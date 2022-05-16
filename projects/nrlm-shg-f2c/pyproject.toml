@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "INFUSION"
+version = "0.1.0"
+description = "This project is a scraper for F2C form data scraping associated with SHG fund disbursements. This exercise is part of the INUSION project under BIPP."
+authors = ["Ewan Nikhil Thomas"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+selenium = "^4.1.3"
+webdriver-manager = "^3.5.4"
+bs4 = "^0.0.1"
+lxml = "^4.8.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

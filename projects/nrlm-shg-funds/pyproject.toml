@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "INFUSION"
+version = "0.1.0"
+description = "This project is dedicated towards scraping fund disbursement information to SHG's in India and undertaken as part of INFUSION project under BIPP."
+authors = ["Ewan Nikhil Thomas"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+bs4 = "^0.0.1"
+webdriver-manager = "^3.5.4"
+selenium = "^4.1.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
