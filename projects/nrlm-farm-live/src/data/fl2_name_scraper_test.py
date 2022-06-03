@@ -43,6 +43,7 @@ while True:
 
         # defining explicit conditional wait
         wait = WebDriverWait(driver, 10)
+        # time.sleep(5)
         wait.until(EC.visibility_of_element_located, (By.XPATH, '//*[@id="yearId"]'))
 
         # POINT OF MANUAL ITERATION
@@ -124,10 +125,12 @@ while True:
             state_select.select_by_value(state_code)
 
             # driver.implicitly_wait(2)
-
+            driver.find_element(By.XPATH, '//*[@id="districtId"]').click()
             district_select = Select(
                 driver.find_element(By.XPATH, '//*[@id="districtId"]')
             )
+
+            print(state_name)
             print("past here")
             district_names = [
                 district_name.get_attribute("text")
@@ -181,6 +184,8 @@ while True:
 
                     driver.implicitly_wait(5)
 
+                    driver.find_element(By.XPATH, '//*[@id="blockId"]').click()
+
                     block_select = Select(
                         driver.find_element(By.XPATH, '//*[@id="blockId"]')
                     )
@@ -192,7 +197,7 @@ while True:
                         block_code.get_attribute("value")
                         for block_code in block_select.options
                     ][1:]
-
+                    print(block_names)
                     for block_name, block_code in zip(block_names, block_codes):
 
                         block = re.sub(
