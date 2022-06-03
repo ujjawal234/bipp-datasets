@@ -35,7 +35,7 @@ all_names_path = Path.joinpath(interim_path, "jsons", "all_names_extended_new.js
 with open(str(all_names_path), "r") as infile:
     all_names = json.load(infile)
 
-# use all_names_extended.json when 2022-2023 webpage is updated with all the months in dropdown lists
+# use all_names_extended.json when the 2022-2023 webpage is updated with all the months in dropdown lists
 
 # *****************************************************************************************************************************************************************************************#
 

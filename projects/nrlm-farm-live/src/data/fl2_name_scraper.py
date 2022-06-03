@@ -66,6 +66,7 @@ while True:
             from_month_select.select_by_value(month)
 
         sleep(3)
+        # slleeep
 
         to_month_select = Select(driver.find_element(By.XPATH, '//*[@id="tmonth"]'))
 
