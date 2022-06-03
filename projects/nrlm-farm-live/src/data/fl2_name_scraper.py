@@ -21,6 +21,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw")
 interim_path = Path.joinpath(dir_path, "data", "interim")
+last_state_counter = 0
 
 # defining Chrome options
 chrome_options = webdriver.ChromeOptions()
@@ -38,10 +39,12 @@ driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_option
 # fetching url
 url = "https://nrlm.gov.in/FLMPRIndicatorsWiseAction.do?methodName=showDetail"
 
-driver.get(url)
+# driver.get(url)
 
 while True:
     try:
+
+        driver.get(url)
 
         sleep(3)
 
@@ -79,10 +82,10 @@ while True:
         state_select = Select(driver.find_element(By.XPATH, '//*[@id="stateId"]'))
         state_names = [
             state_name.get_attribute("text") for state_name in state_select.options
-        ][24:25]
+        ][last_state_counter:]
         state_codes = [
             state_code.get_attribute("value") for state_code in state_select.options
-        ][24:25]
+        ][last_state_counter:]
 
         for state_name, state_code in zip(state_names, state_codes):
 
@@ -121,55 +124,93 @@ while True:
                 if not district_path.exists():
                     Path.mkdir(district_path, parents=True)
 
-                # checking if the district file exists
-                if not district_file.exists():
+                if state_code == district_code[0:2]:
 
-                    print(f"{district_file} doesn't exist.Proceeding for scraping")
+                    # checking if the district file exists
+                    if not district_file.exists():
 
-                    district_list = []
+                        print(f"{district_file} doesn't exist.Proceeding for scraping")
 
-                    district_select.select_by_value(district_code)
+                        district_list = []
 
-                    sleep(3)
+                        driver.find_element(By.XPATH, '//*[@id="districtId"]').click()
 
-                    block_select = Select(
-                        driver.find_element(By.XPATH, '//*[@id="blockId"]')
-                    )
-                    block_names = [
-                        block_name.get_attribute("text")
-                        for block_name in block_select.options
-                    ][1:]
-                    block_codes = [
-                        block_code.get_attribute("value")
-                        for block_code in block_select.options
-                    ][1:]
-
-                    for block_name, block_code in zip(block_names, block_codes):
-
-                        block = re.sub(
-                            r"[^A-Za-z0-9_]", "", block_name.strip().replace(" ", "_")
+                        district_select = Select(
+                            driver.find_element(By.XPATH, '//*[@id="districtId"]')
                         )
 
-                        block_dict = {
-                            "year": year,
-                            "state_name": state,
-                            "state_code": state_code,
-                            "district_name": district,
-                            "district_code": district_code,
-                            "block_name": block,
-                            "block_code": block_code,
-                        }
+                        district_select.select_by_value(district_code)
 
-                        print(block_dict)
+                        sleep(3)
 
-                        district_list.append(block_dict)
+                        driver.find_element(By.XPATH, '//*[@id="blockId"]').click()
 
-                    with open(str(district_file), "w") as nested_out_file:
-                        json.dump(district_list, nested_out_file, ensure_ascii=False)
+                        block_select = Select(
+                            driver.find_element(By.XPATH, '//*[@id="blockId"]')
+                        )
+                        block_names = [
+                            block_name.get_attribute("text")
+                            for block_name in block_select.options
+                        ][1:]
+                        block_codes = [
+                            block_code.get_attribute("value")
+                            for block_code in block_select.options
+                        ][1:]
+
+                        for block_name, block_code in zip(block_names, block_codes):
+
+                            if district_code == block_code[0:4]:
+
+                                block = re.sub(
+                                    r"[^A-Za-z0-9_]",
+                                    "",
+                                    block_name.strip().replace(" ", "_"),
+                                )
+
+                                block_dict = {
+                                    "year": year,
+                                    "state_name": state,
+                                    "state_code": state_code,
+                                    "district_name": district,
+                                    "district_code": district_code,
+                                    "block_name": block,
+                                    "block_code": block_code,
+                                }
+
+                                print(state, district, block)
+
+                                print(block_dict)
+
+                                district_list.append(block_dict)
+
+                            else:
+                                print("Code match Error")
+
+                                print(
+                                    f"{district_name}:{district_code} and {block_name}:{block_code} doesn't match. Getting page again"
+                                )
+
+                                raise (KeyError)
+
+                        with open(str(district_file), "w") as nested_out_file:
+                            json.dump(
+                                district_list, nested_out_file, ensure_ascii=False
+                            )
+
+                    else:
+                        print(f"{district_file} exists.Moving to next district")
+                        continue
 
                 else:
-                    print(f"{district_file} exists.Moving to next district")
-                    continue
+                    print("Code match Error")
+
+                    print(
+                        f"{state_name}:{state_code} and {district_name}:{district_code} doesn't match. Getting page again"
+                    )
+
+                    raise (KeyError)
+
+            last_state_counter += 1
 
         break
 
@@ -180,11 +221,12 @@ while True:
         ElementNotSelectableException,
     ) as ex:
         print(f"{ex} has been raised")
-        driver.get(url)
 
     except WebDriverException as ex:
         print(f"{ex} has been raised")
-        driver.get(url)
+
+    except KeyError:
+        print("Catching KeyError. Getting page again.")
 
 print(f"Scraping has ended for year {year} and closing driver. Scraper rests.")
 driver.close()
