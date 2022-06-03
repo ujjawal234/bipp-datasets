@@ -237,5 +237,5 @@ while True:
         # print("webbie")
         driver.get(url)
 
-print(f"Scraping has ended for year {year} and closing driver. Scraper rests.")
+print(f"Scraping has ended for year {year} and closing driver. Scraper rests now.")
 driver.close()

@@ -34,7 +34,6 @@ chrome_options.add_argument("start-maximized")
 chrome_options.add_argument("--ignore-certificate-errors")
 
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
-# ***************************************
 
 
 # fetching url
