@@ -23,7 +23,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 """2. Scraping of data from the concerned webpages."""
 """3. Wrangling of data parsed from HTML of Block level webpage and saved as csv in concerend folders. This section is nested within step 2."""
 # *****************************************************************************************************************************************************************************************#
-
+# ***************************************
 
 """PROCESS 1"""
 # defining directories
