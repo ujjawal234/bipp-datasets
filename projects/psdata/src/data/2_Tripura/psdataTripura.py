@@ -14,13 +14,19 @@ class psdataTripurascraper(scrapy.Spider):
 
     def start_requests(self):
         # request to initiate the scraping
-        yield Request("http://ermstripura.nic.in/ERollTrp/ERollSearch2019Final.aspx")
+        yield Request(
+            "http://ermstripura.nic.in/ERollTrp/ERollSearch2019Final.aspx"
+        )
 
     def parse(self, response):
         # "This fuction will parse the names of all the assembly constituency in the district and will raise another request to get all polling stations in the constituency."
 
-        ac_names = response.xpath('//select[@id="ddACNoName"]/option/text()').extract()
-        ac_values = response.xpath('//select[@id="ddACNoName"]/option/@value').extract()
+        ac_names = response.xpath(
+            '//select[@id="ddACNoName"]/option/text()'
+        ).extract()
+        ac_values = response.xpath(
+            '//select[@id="ddACNoName"]/option/@value'
+        ).extract()
         # print(ac_values)
         i = 1
         for ac in ac_values[1:]:
@@ -40,11 +46,17 @@ class psdataTripurascraper(scrapy.Spider):
         final_table = response.xpath(
             '//select[@id="ddPartNoName"]/option/text()'
         ).extract()
-        table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
+        table_list = pd.DataFrame(
+            final_table, columns=["Polling_Station_Name"]
+        )
         table_list = table_list.iloc[1:, 0:]
 
         file_path = (
-            self.parent_folder + "/" + "2_Tripura" + "/" + response.meta["ac_names"]
+            self.parent_folder
+            + "/"
+            + "2_Tripura"
+            + "/"
+            + response.meta["ac_names"]
         )
         file_name = response.meta["ac_names"] + ".csv"
         self.directory(file_path)

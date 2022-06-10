@@ -42,7 +42,9 @@ class Consolidation_Script:
             axis=1,
             inplace=True,
         )
-        df["Polling Station No."] = df["Polling Station No."].astype(str).astype(int)
+        df["Polling Station No."] = (
+            df["Polling Station No."].astype(str).astype(int)
+        )
         df_combined["Year"] = 2021
         df_combined.rename(
             columns={
@@ -52,7 +54,13 @@ class Consolidation_Script:
             inplace=True,
         )
         df_combined = df_combined[
-            ["Year", "State", "AC", "Polling_Station_Number", "Polling_Station_Name"]
+            [
+                "Year",
+                "State",
+                "AC",
+                "Polling_Station_Number",
+                "Polling_Station_Name",
+            ]
         ]
         print(df_combined)
 

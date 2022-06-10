@@ -5,7 +5,8 @@ from pathlib import Path
 import altair as alt
 import numpy as np
 import pandas as pd
-import pandas_profiling as pp
+
+# import pandas_profiling as pp
 import seaborn as sns
 
 alt.renderers.enable("mimetype")
@@ -79,7 +80,9 @@ for state, pol_date in time_dict.items():
     pol_date = datetime.strptime(pol_date, "%d-%m-%Y")
     state_data = gw_master[gw_master["State_name"] == state]
     state_data = (
-        state_data.groupby(["month_year", "State_name"]).aggregate("mean").reset_index()
+        state_data.groupby(["month_year", "State_name"])
+        .aggregate("mean")
+        .reset_index()
     )
     state_data["status"] = np.where(
         (state_data.month_year > pol_date),
@@ -95,21 +98,24 @@ for state, pol_date in time_dict.items():
     fig.savefig(file_path + "/" + str(state) + "_1" + ".pdf")
 
 # %%
-# District wise analysis of States 
+# District wise analysis of States
 # You need to change the state name
 
 state_name = "KARNATAAKA"
 
-def district_profile(state_name:str(state_name)):
-    state = gw_master[gw_master['State_name'] == state_name]
 
-    dist_list = state['District_name'].unique().tolist()
+def district_profile(state_name: str(state_name)):
+    state = gw_master[gw_master["State_name"] == state_name]
+
+    dist_list = state["District_name"].unique().tolist()
 
     for each in dist_list:
-        district_data = state[state['District_name'] == each]
-        pol_date = datetime.strptime(time_dict[state_name],"%d-%m-%Y")
+        district_data = state[state["District_name"] == each]
+        pol_date = datetime.strptime(time_dict[state_name], "%d-%m-%Y")
         district_data = (
-            district_data.groupby(["month_year","wellid"]).aggregate("mean").reset_index()
+            district_data.groupby(["month_year", "wellid"])
+            .aggregate("mean")
+            .reset_index()
         )
         district_data["status"] = np.where(
             (district_data.month_year > pol_date),
@@ -117,12 +123,23 @@ def district_profile(state_name:str(state_name)):
             "Before " + str(pol_date),
         )
         fig = sns.relplot(
-            data=district_data, x="month_year", y="gwl", hue="status", kind="line"
+            data=district_data,
+            x="month_year",
+            y="gwl",
+            hue="status",
+            kind="line",
         )
         fig.fig.suptitle(str(each))
-        file_path = parent_folder + "state_profiles/" + str(state_name) + "/" + str(each)
+        file_path = (
+            parent_folder
+            + "state_profiles/"
+            + str(state_name)
+            + "/"
+            + str(each)
+        )
         Path(file_path).mkdir(exist_ok=True)
         fig.savefig(file_path + "/" + str(each) + "_1" + ".pdf")
     pass
-    
+
+
 # %%

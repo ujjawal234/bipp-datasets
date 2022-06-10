@@ -64,7 +64,9 @@ class Consolidation_Script:
 
 @click.command()
 @click.option("-state", default="2_Tripura", help="State_Name")
-@click.option("-year", default="2018", help="Provide Year in which Data was collected")
+@click.option(
+    "-year", default="2018", help="Provide Year in which Data was collected"
+)
 def main(state, year):
     x = Consolidation_Script()
     x.FileConsolidator(state_name=state, year_of_data=year)

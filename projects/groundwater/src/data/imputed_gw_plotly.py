@@ -108,14 +108,20 @@ time_dict = {
 for state, pol_date in time_dict.items():
     pol_date = datetime.strptime(pol_date, "%d-%m-%Y")
     state_data = gw_master[gw_master["state"] == state]
-    state_data = state_data.groupby(["month_year"]).aggregate("mean").reset_index()
+    state_data = (
+        state_data.groupby(["month_year"]).aggregate("mean").reset_index()
+    )
     state_data["status"] = np.where(
         (state_data.month_year > pol_date),
         "After " + str(pol_date),
         "Before " + str(pol_date),
     )
     fig = px.line(
-        state_data, x="month_year", y="water_level", color="status", title=str(state)
+        state_data,
+        x="month_year",
+        y="water_level",
+        color="status",
+        title=str(state),
     )
     fig.show()
     file_path = parent_folder + "state_profiles/" + str(state)
@@ -150,7 +156,9 @@ def district_profile(state_name: str(state_name)):
         district_data = state[state["district"] == each]
         pol_date = datetime.strptime(time_dict[state_name], "%d-%m-%Y")
         district_data = (
-            district_data.groupby(["month_year"]).aggregate("mean").reset_index()
+            district_data.groupby(["month_year"])
+            .aggregate("mean")
+            .reset_index()
         )
         district_data["status"] = np.where(
             (district_data.month_year > pol_date),
@@ -198,7 +206,9 @@ gw_master["moving_average_well"] = np.nan
 well_data_list = []
 
 for well in well_list:
-    well_data = gw_master[gw_master["wlcode"] == well].reset_index(inplace=False)
+    well_data = gw_master[gw_master["wlcode"] == well].reset_index(
+        inplace=False
+    )
     well_data.loc[:, "moving_average_well"] = (
         well_data["water_level"].rolling(4, center=True).mean()
     )

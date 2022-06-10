@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "INFUSION"
+version = "0.1.0"
+description = "NRLM Agri-Nutri scraper and data"
+authors = ["Diya Sarkar"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+ipykernel = "^6.13.0"
+selenium = "^4.1.5"
+webdriver-manager = "^3.5.4"
+lxml = "^4.8.0"
+pathlib = "^1.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
