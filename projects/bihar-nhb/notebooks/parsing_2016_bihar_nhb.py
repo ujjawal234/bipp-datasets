@@ -3,18 +3,19 @@ import tabula as tb
 from tabula import read_pdf
 
 # Read pdf into list of DataFrame
-dfs = tb.read_pdf("All District_2016-17_All Crops.pdf",pandas_options={'header':None},lattice=True, pages='all')
+dfs = tb.read_pdf("/Users/bhanvi/work_isb/bipp-datasets/projects/bihar-nhb/data/raw/All District_2016-17_All Crops.pdf",pandas_options={'header':None},lattice=True, pages='all')
 df=pd.DataFrame(dfs[0])
-print('Printinf df')
+print('Printing df')
 print(df)
 
 df.loc[:5]
 
+#extracting the district column from the dataframe
 df.loc[5:]
 dist_name=df.loc[5:][1]
-dist_name
+print(dist_name)
 
-
+#Creating a dictionary containing area with corresponding crop and  a list contating crop name
 dict1={}
 crop_name=[]
 for i in range(14):
@@ -26,11 +27,12 @@ for i in range(14):
     dict1[key]=value
     crop_name.append(key)
     p+=2
-    
-dict1
+
+print('Printing dict1')
+print(dict1)
 
 
-
+#Creating a dictionary containing production with corresponding crop
 dict2={}
 
 for i in range(14):
@@ -42,9 +44,13 @@ for i in range(14):
     dict2[key]=value
     p+=2
 
-crop_name
+print('Printing dict2')
+print(dict2)
+print('Printing dict1')
+print('crop_list')
+print(crop_name)
 
-
+# Making a list containing the dictionaries and list with area, production ,crop_name column along with district column at index
 df_list=[] 
 
 for i in crop_name:
@@ -57,24 +63,26 @@ for i in crop_name:
   df_train.drop(df_train.tail(1).index,inplace=True) 
   
   df_list.append(df_train)
+
  
-#  if Deletiing the last total column in page 14 
+# Deleting the total column in page 14 
 df_list.pop()
 
 
-df_list[1]
+print(df_list[1])
 
+#dataframe with all the columns 
 df_all = pd.concat([df_list[i] for i in range(len(df_list))], axis=0)
-df_all
+print('Dataframe')
+print(df_all)
+
 
 df_all.index.name='District'
-
-df_all
-
 df_all=df_all[['crop_name','Area','Production']]
 
-df_all
+print(df_all)
 
+#Adding a list containing the corresponding column types of the crops
 crop_type=[]
 fruits_list=['Aonla/Gooseberry','Banana','Guava','Limes and Lemons','Litchi','Mango','Muskmelon','Papaya','Pineapple','Sweet Orange','Watermelon','Other Citrus']
 vegetables_list=['Beans(All Including','Bitter Gourd','Bottle Gourd','Brinjal','Cabbage','Carrot','Cauliflower','Cucumber','Elephant Foot','Green Chilly','Kaddu/Pumpkin','Okra /Ladies Finger','Onion','Peas (Green)','Pointed Gourd','Potato','Radish','Sweet Potato','Tomato','Other Vegetables']
@@ -97,15 +105,14 @@ for i in df_all['crop_name']:
     crop_type.append('aromatic_plants')
   
 
-
+#Adding the list into dataframe
 df_all['crop_type']=crop_type
-df_all
 
 df_all=df_all[['crop_name','crop_type','Area','Production']]
 
-df_all
+print(df_all)
 
-
+#converting the dataframe to csv
 df_all.to_csv('parsed_2016_bihar_nhb_.csv')
 
 
@@ -117,6 +124,5 @@ df_all.to_csv('parsed_2016_bihar_nhb_.csv')
 
 
 
-print('Printinf df after making header')
-print(df)
+
 
