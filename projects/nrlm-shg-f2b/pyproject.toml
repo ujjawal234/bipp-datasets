@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "INFUSION"
+version = "0.1.0"
+description = "This repo contains the scraper for extracting the F2b report of NRLM SHGs. The F2b report contains information on CIF distributed to SHGs at SHG level. This scraper is built as part of the INFUSION project under BIPP."
+authors = ["Akansha Agarwal, Ewan Nikhil Thomas"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

@@ -9,9 +9,11 @@ from pathlib import Path
 all_names = []
 
 # calling all the json files
+time_stamp = "2022_23_May"
+
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw", "2021_22_March", "jsons")
-interim_path = Path.joinpath(dir_path, "data", "interim", "2021_22_March")
+raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
+interim_path = Path.joinpath(dir_path, "data", "interim", time_stamp)
 
 all_names_path = Path.joinpath(interim_path, "all_names.json")
 
@@ -19,7 +21,7 @@ if not interim_path.exists():
     interim_path.mkdir(parents=True)
 
 
-files = list(raw_path.glob("UTTAR PRADESH/*.json"))
+files = list(raw_path.glob("*/*.json"))
 
 
 # print(files)
@@ -32,8 +34,7 @@ for file in files:
         # print(len(file))
         dist_level_names = json.load(outfile)
 
-    for row in dist_level_names:
-        all_names.extend(dist_level_names)
+    all_names.extend(dist_level_names)
 
 
 # ****************************************************************************

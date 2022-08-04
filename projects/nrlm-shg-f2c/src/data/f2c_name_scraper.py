@@ -15,8 +15,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 # defining directories
+time_stamp = "2022_23_May"
+
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw", "2021_22_March", "jsons")
+raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
 interim_path = Path.joinpath(dir_path, "data", "interim")
 external_path = Path.joinpath(dir_path, "data", "external")
 # devanagari_file_path=Path.joinpath(external_path, "devanagiri.json")
@@ -56,14 +58,14 @@ driver.implicitly_wait(5)
 # ************************POINT OF MANUAL ITERATION********************#
 # selecting the year web element
 year_select = Select(driver.find_element(By.NAME, "year"))
-year = "2021-2022"
+year = "2022-2023"
 year_select.select_by_value(year)
 
 driver.implicitly_wait(5)
 
 # selecting the month web element
 month_select = Select(driver.find_element(By.NAME, "month"))
-month = "03"
+month = "05"  # May
 month_select.select_by_value(month)
 
 driver.implicitly_wait(5)
@@ -496,3 +498,8 @@ for state, st_href in zip(state_names, state_hrefs):
 
                 except (NoSuchElementException, TimeoutException):
                     continue
+
+
+# driver.close()
+
+print("Looping has ended. Scraper rests.")
