@@ -10,5 +10,20 @@ with urllib.request.urlopen("https://www.npci.org.in/files/npci/TdBd.json") as u
 
 df = pd.DataFrame(result["data"])
 
+# reorder columns
+
+df_reorder = df[
+    [
+        "Year",
+        "Month",
+        "Product",
+        "IssuerBankName",
+        "TotalVolume",
+        "ApprovedTransactionVolume",
+        "BusinessDeclineTransactions",
+        "TechnicalDeclineTransactions",
+    ]
+]
+
 # converting to csv
-df.to_csv(r"data\raw\npciBDTD.csv", index=False)
+df_reorder.to_csv(r"data\raw\npciBDTD.csv", index=False)
