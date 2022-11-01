@@ -19,7 +19,7 @@ Monorepo Structure
     ├── lib 					<- Each lib is a Python package that you can install using poetry
     │   ├── lib1
     │   │   ├── pyproject.toml  <- Each lib specifies its dependencies
-    │   │   ├── factly/lib1/    <- All internal packages are in the factly namespace
+    │   │   ├── bipp/lib1/    <- All internal packages are in the bipp namespace
     │   │   └── tests/
     │   └── lib2...
     │

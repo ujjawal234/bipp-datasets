@@ -1,4 +1,4 @@
-# from factly.{{cookiecutter.repo_name}} import __version__
+# from bipp.{{cookiecutter.repo_name}} import __version__
 
 
 # def test_version():
