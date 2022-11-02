@@ -29,7 +29,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw")
 interim_path = Path.joinpath(dir_path, "data", "interim")
-all_names_path = Path.joinpath(interim_path, "jsons", "all_names_extended_new.json")
+all_names_path = Path.joinpath(interim_path, "all_names.json")
 
 
 with open(str(all_names_path), "r") as infile:
@@ -55,7 +55,9 @@ chrome_options.add_experimental_option("prefs", prefs)
 chrome_options.add_argument("start-maximized")
 chrome_options.add_argument("--ignore-certificate-errors")
 
-driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+driver = webdriver.Chrome(
+    ChromeDriverManager().install(), options=chrome_options
+)
 
 
 # fetching url
@@ -68,7 +70,7 @@ for row in all_names:
     folder_path = Path.joinpath(
         raw_path,
         row["year"].strip().replace(" ", "_"),
-        row["month"].strip().replace(" ", "_"),
+        row["month_name"].strip().replace(" ", "_"),
         row["state_name"].strip().replace(" ", "_"),
         row["district_name"].strip().replace(" ", "_"),
     )
@@ -110,13 +112,13 @@ for row in all_names:
                 from_month_select = Select(
                     driver.find_element(By.XPATH, '//*[@id="fmonth"]')
                 )
-                from_month_select.select_by_value(row["month_code"])
+                from_month_select.select_by_value(row["month_value"])
                 sleep(1)
 
                 to_month_select = Select(
                     driver.find_element(By.XPATH, '//*[@id="tmonth"]')
                 )
-                to_month_select.select_by_value(row["month_code"])
+                to_month_select.select_by_value(row["month_value"])
                 sleep(1)
 
                 state_select = Select(
@@ -138,7 +140,8 @@ for row in all_names:
                 sleep(1)
 
                 SubmitButton = driver.find_element(
-                    By.XPATH, "/html/body/div[4]/form/div[1]/ul/li[4]/div/input[1]"
+                    By.XPATH,
+                    "/html/body/div[4]/form/div[1]/ul/li[4]/div/input[1]",
                 )
                 SubmitButton.click()
                 sleep(3)
@@ -148,24 +151,31 @@ for row in all_names:
                 """The wrangling of NRLM FL2 block level page begins here"""
 
                 # making all the entires visible on the page
-                entries_select = Select(driver.find_element(By.NAME, "example_length"))
+                entries_select = Select(
+                    driver.find_element(By.NAME, "example_length")
+                )
                 entries_select.select_by_value("100")
                 sleep(1)
 
                 # Parsing the data table from HTML
                 block_table = driver.find_element(
-                    By.XPATH, "/html/body/div[4]/form/div[2]/div/div/div[3]/div[2]"
+                    By.XPATH,
+                    "/html/body/div[4]/form/div[2]/div/div/div[3]/div[2]",
                 )
                 block_table_html = block_table.get_attribute("outerHTML")
-                block_data = pd.read_html(block_table_html, flavor="lxml", header=1)
+                block_data = pd.read_html(
+                    block_table_html, flavor="lxml", header=1
+                )
 
                 block_data = block_data[1]
 
                 col_names = [
-                    x.replace(" ", "_").lower().strip() for x in block_data.columns
+                    x.replace(" ", "_").lower().strip()
+                    for x in block_data.columns
                 ]
                 col_names = [
-                    re.sub(r"[^A-Za-z0-9_]", "", x.replace("-", "_")) for x in col_names
+                    re.sub(r"[^A-Za-z0-9_]", "", x.replace("-", "_"))
+                    for x in col_names
                 ]
                 col_names[0] = "indicator_number"
 
@@ -173,14 +183,14 @@ for row in all_names:
 
                 # assigning identifier variables
                 block_data.insert(0, "year", row["year"])
-                block_data.insert(1, "month", row["month"])
+                block_data.insert(1, "month", row["month_name"])
                 block_data.insert(2, "state", row["state_name"])
                 block_data.insert(3, "district", row["district_name"])
                 block_data.insert(4, "block", row["block_name"])
 
                 block_data.to_csv(file_path, index=False)
                 print(
-                    f"Exporting {row['year']} {row['month']} {row['state_name']} {row['district_name']} {row['block_name']} as csv"
+                    f"Exporting {row['year']} {row['month_name']} {row['state_name']} {row['district_name']} {row['block_name']} as csv"
                 )
 
                 break

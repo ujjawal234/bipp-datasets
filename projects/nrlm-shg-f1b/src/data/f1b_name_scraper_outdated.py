@@ -51,8 +51,8 @@ selectyear1.select_by_value(year1)
 time.sleep(5)
 
 selectmonth1 = Select(driver.find_element(By.ID, "month"))
-month1 = "06"
-selectmonth1.select_by_value(month1)
+month1 = "JUNE"
+selectmonth1.select_by_visible_text(month1)
 driver.implicitly_wait(5)
 
 # the second year and month
@@ -63,8 +63,8 @@ selectyear2.select_by_value(year2)
 driver.implicitly_wait(5)
 
 selectmonth2 = Select(driver.find_element(By.ID, "toMonth"))
-month2 = "06"
-selectmonth2.select_by_value(month2)
+month2 = "JUNE"
+selectmonth2.select_by_visible_text(month2)
 driver.implicitly_wait(5)
 
 # clicking submit
@@ -98,7 +98,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
     driver.execute_script(st_href)
 
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(10)
 
     # selecting option to view 100 pages
 
@@ -107,7 +107,7 @@ for state, st_href in zip(state_names, state_hrefs):
     )
     no_of_pages.select_by_value("100")
 
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(10)
 
     # select the districts with hyperlink
 
@@ -141,7 +141,7 @@ for state, st_href in zip(state_names, state_hrefs):
             )
             no_of_pages.select_by_value("100")
 
-            driver.implicitly_wait(5)
+            driver.implicitly_wait(10)
 
             # select the districts with hyperlink
 
@@ -192,7 +192,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                 driver.execute_script(di_href)
 
-                driver.implicitly_wait(5)
+                driver.implicitly_wait(10)
 
                 # selecting option to view 100 pages
 
@@ -203,7 +203,7 @@ for state, st_href in zip(state_names, state_hrefs):
                 )
                 no_of_pages.select_by_value("100")
 
-                driver.implicitly_wait(5)
+                driver.implicitly_wait(10)
 
                 # select the blocks with hyperlink
 
@@ -242,7 +242,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         )
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         # select the blocks with hyperlink
 
@@ -274,7 +274,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         driver.execute_script(bl_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         # selecting option to view 100 pages
 
@@ -286,7 +286,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         )
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         # select the gps with hyperlink
 
@@ -328,7 +328,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                 )
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 # select the gps with hyperlink
 
@@ -359,7 +359,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 driver.execute_script(gp_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 # selecting option to view 100 pages
 
@@ -371,7 +371,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                 )
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 # select the villages with hyperlink
 
@@ -421,7 +421,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                         )
                                         no_of_pages.select_by_value("100")
 
-                                        driver.implicitly_wait(5)
+                                        driver.implicitly_wait(10)
 
                                         # select the villages with hyperlink
 
@@ -447,9 +447,9 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                         break
 
-                                if len(village_names) == 0:
+                                for village in village_names:
 
-                                    print("Village:  NOT_FOUND", end="\n")
+                                    print("Village: " + village, end="\n")
 
                                     # ensuring the village name is in english
 
@@ -457,6 +457,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                         (str.isascii(district))
                                         and (str.isascii(block))
                                         and (str.isascii(gp))
+                                        and (str.isascii(village))
                                     ):
 
                                         # creating village dictionary
@@ -466,7 +467,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                             "district_name": district,
                                             "block_name": block,
                                             "gp_name": gp,
-                                            "village_name": "NOT_FOUND",
+                                            "village name": village,
                                         }
                                         json_list.append(village_dict)
 
@@ -476,39 +477,6 @@ for state, st_href in zip(state_names, state_hrefs):
                                             "Devanagari in name at {state}, {district}, {block}, {gp}, {village}. Hence, moving on to next village...",
                                             end="\n",
                                         )
-
-                                else:
-
-                                    for village in village_names:
-
-                                        print("Village: " + village, end="\n")
-
-                                        # ensuring the village name is in english
-
-                                        if (
-                                            (str.isascii(district))
-                                            and (str.isascii(block))
-                                            and (str.isascii(gp))
-                                            and (str.isascii(village))
-                                        ):
-
-                                            # creating village dictionary
-
-                                            village_dict = {
-                                                "state_name": state,
-                                                "district_name": district,
-                                                "block_name": block,
-                                                "gp_name": gp,
-                                                "village_name": village,
-                                            }
-                                            json_list.append(village_dict)
-
-                                        else:
-
-                                            print(
-                                                "Devanagari in name at {state}, {district}, {block}, {gp}, {village}. Hence, moving on to next village...",
-                                                end="\n",
-                                            )
 
                             # sub-sub-try block ends
 
@@ -522,7 +490,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 driver.get(url)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 # the first year and month
 
@@ -530,12 +498,12 @@ for state, st_href in zip(state_names, state_hrefs):
                                     driver.find_element(By.ID, "yearId")
                                 )
                                 selectyear1.select_by_value(year1)
-                                time.sleep(5)
+                                time.sleep(15)
 
                                 selectmonth1 = Select(
                                     driver.find_element(By.ID, "month")
                                 )
-                                selectmonth1.select_by_value(month1)
+                                selectmonth1.select_by_visible_text(month1)
                                 driver.implicitly_wait(5)
 
                                 # the second year and month
@@ -549,7 +517,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                 selectmonth2 = Select(
                                     driver.find_element(By.ID, "toMonth")
                                 )
-                                selectmonth2.select_by_value(month2)
+                                selectmonth2.select_by_visible_text(month2)
                                 driver.implicitly_wait(5)
 
                                 # clicking submit
@@ -563,7 +531,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 driver.execute_script(st_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 no_of_pages = Select(
                                     driver.find_element(
@@ -574,11 +542,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 driver.execute_script(di_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 no_of_pages_1 = Select(
                                     driver.find_element(
@@ -589,11 +557,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 no_of_pages_1.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                                 driver.execute_script(bl_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(10)
 
                         # sub-sub-except block ends
 
@@ -609,7 +577,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         driver.get(url)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         # the first year and month
 
@@ -617,12 +585,12 @@ for state, st_href in zip(state_names, state_hrefs):
                             driver.find_element(By.ID, "yearId")
                         )
                         selectyear1.select_by_value(year1)
-                        time.sleep(5)
+                        time.sleep(15)
 
                         selectmonth1 = Select(
                             driver.find_element(By.ID, "month")
                         )
-                        selectmonth1.select_by_value(month1)
+                        selectmonth1.select_by_visible_text(month1)
                         driver.implicitly_wait(5)
 
                         # the second year and month
@@ -636,7 +604,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         selectmonth2 = Select(
                             driver.find_element(By.ID, "toMonth")
                         )
-                        selectmonth2.select_by_value(month2)
+                        selectmonth2.select_by_visible_text(month2)
                         driver.implicitly_wait(5)
 
                         # clicking submit
@@ -650,7 +618,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         driver.execute_script(st_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         no_of_pages = Select(
                             driver.find_element(
@@ -661,11 +629,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                         driver.execute_script(di_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(10)
 
                     # sub-except block ends
 
@@ -700,16 +668,16 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.get(url)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(10)
 
                     # the first year and month
 
                     selectyear1 = Select(driver.find_element(By.ID, "yearId"))
                     selectyear1.select_by_value(year1)
-                    time.sleep(5)
+                    time.sleep(15)
 
                     selectmonth1 = Select(driver.find_element(By.ID, "month"))
-                    selectmonth1.select_by_value(month1)
+                    selectmonth1.select_by_visible_text(month1)
                     driver.implicitly_wait(5)
 
                     # the second year and month
@@ -721,7 +689,7 @@ for state, st_href in zip(state_names, state_hrefs):
                     selectmonth2 = Select(
                         driver.find_element(By.ID, "toMonth")
                     )
-                    selectmonth2.select_by_value(month2)
+                    selectmonth2.select_by_visible_text(month2)
                     driver.implicitly_wait(5)
 
                     # clicking submit
@@ -734,7 +702,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(10)
 
                     break
                 # sub-try block ends
@@ -775,16 +743,16 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     url = "https://nrlm.gov.in/RevolvingFundDisbursementAction.do?methodName=showDetail"
                     driver.get(url)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(10)
 
                     # #the first year and month
 
                     selectyear1 = Select(driver.find_element(By.ID, "yearId"))
                     selectyear1.select_by_value(year1)
-                    time.sleep(5)
+                    time.sleep(15)
 
                     selectmonth1 = Select(driver.find_element(By.ID, "month"))
-                    selectmonth1.select_by_value(month1)
+                    selectmonth1.select_by_visible_text(month1)
                     driver.implicitly_wait(5)
 
                     # the second year and month
@@ -796,7 +764,7 @@ for state, st_href in zip(state_names, state_hrefs):
                     selectmonth2 = Select(
                         driver.find_element(By.ID, "toMonth")
                     )
-                    selectmonth2.select_by_value(month2)
+                    selectmonth2.select_by_visible_text(month2)
                     driver.implicitly_wait(5)
 
                     # clicking submit
@@ -810,7 +778,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(10)
 
                     break
                 # sub-try block ends

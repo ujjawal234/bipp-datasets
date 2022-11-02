@@ -28,9 +28,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 """PROCESS 1"""
 # defining directories
+
+time_stamp = "2022_23_June"
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw", "2021_22_March")
-interim_path = Path.joinpath(dir_path, "data", "interim", "2021_22_March")
+raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp)
+interim_path = Path.joinpath(dir_path, "data", "interim", time_stamp)
 all_names_path = Path.joinpath(interim_path, "all_names.json")
 
 with open(str(all_names_path), "r") as infile:
@@ -90,27 +92,27 @@ for row in all_names:
 
         counter = 0
 
-        while counter <= 2:
+        while counter <= 1:
 
             counter += 1
 
             try:
                 driver.get(url)
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 # ************************POINT OF MANUAL ITERATION********************#
                 # selecting the year web element
                 year_select = Select(driver.find_element(By.NAME, "year"))
-                year = "2021-2022"
+                year = "2022-2023"
                 year_select.select_by_value(year)
 
                 driver.implicitly_wait(5)
 
                 # selecting the month web element
                 month_select = Select(driver.find_element(By.NAME, "month"))
-                month = "03"
-                month_select.select_by_value("03")
+                month = "06"  # June
+                month_select.select_by_value(month)
 
                 driver.implicitly_wait(5)
 
@@ -141,7 +143,7 @@ for row in all_names:
 
                 driver.execute_script(state_dict[row["state_name"]])
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 district_row_select = Select(
                     driver.find_element(
@@ -151,7 +153,7 @@ for row in all_names:
 
                 district_row_select.select_by_value("100")
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 district_table = driver.find_elements(
                     By.XPATH, "//*[@id='example']//a"
@@ -173,7 +175,7 @@ for row in all_names:
 
                 driver.execute_script(district_dict[row["district_name"]])
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 block_row_select = Select(
                     driver.find_element(
@@ -183,7 +185,7 @@ for row in all_names:
 
                 block_row_select.select_by_value("100")
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 block_table = driver.find_elements(
                     By.XPATH, "//*[@id='example']//a"
@@ -228,7 +230,7 @@ for row in all_names:
 
                         block_hrefs.extend(block_hrefs_next)
 
-                        # driver.implicitly_wait(10)
+                        # driver.implicitly_wait(5)
 
                     else:
                         break
@@ -241,7 +243,7 @@ for row in all_names:
 
                 driver.execute_script(block_dict[row["block_name"]])
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 gp_row_select = Select(
                     driver.find_element(
@@ -251,7 +253,7 @@ for row in all_names:
 
                 gp_row_select.select_by_value("100")
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 gp_table = driver.find_elements(
                     By.XPATH, "//*[@id='example']//a"
@@ -293,7 +295,7 @@ for row in all_names:
                         gp_names.extend(gp_names_next)
                         gp_hrefs.extend(gp_hrefs_next)
 
-                        driver.implicitly_wait(10)
+                        driver.implicitly_wait(5)
 
                     else:
                         break
@@ -322,7 +324,7 @@ for row in all_names:
                 print(gp_dict[row["gp_name"]])
                 driver.execute_script(gp_dict[row["gp_name"]])
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 vill_row_select = Select(
                     driver.find_element(
@@ -332,7 +334,7 @@ for row in all_names:
 
                 vill_row_select.select_by_value("100")
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 # identifying the table element
                 vill_table = driver.find_element(By.ID, "example")

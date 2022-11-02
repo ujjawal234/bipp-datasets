@@ -9,7 +9,7 @@ from pathlib import Path
 all_names = []
 
 # calling all the json files
-time_stamp = "2022_23_May"
+time_stamp = "2022_23_September"
 
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")

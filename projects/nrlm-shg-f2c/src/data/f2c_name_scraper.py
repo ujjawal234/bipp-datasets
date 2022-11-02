@@ -15,7 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 # defining directories
-time_stamp = "2022_23_May"
+time_stamp = "2022_23_September"
 
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
@@ -65,7 +65,7 @@ driver.implicitly_wait(5)
 
 # selecting the month web element
 month_select = Select(driver.find_element(By.NAME, "month"))
-month = "05"  # May
+month = "09"  # September
 month_select.select_by_value(month)
 
 driver.implicitly_wait(5)
@@ -500,6 +500,6 @@ for state, st_href in zip(state_names, state_hrefs):
                     continue
 
 
-# driver.close()
+driver.close()
 
 print("Looping has ended. Scraper rests.")

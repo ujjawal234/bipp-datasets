@@ -7,14 +7,15 @@ from pathlib import Path
 # FLATTENING INTO A SINGLE LIST OF DICTIONARIES
 # defining a list for storing all the names of states, district, blocks and GP's
 all_names = []
+time_stamp = "2022_23_June"
 
 # calling all the json files
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw", "2021_22_March", "jsons")
-interim_path = Path.joinpath(dir_path, "data", "interim", "2021_22_March")
+raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
+interim_path = Path.joinpath(dir_path, "data", "interim", time_stamp)
 
 all_names_path = Path.joinpath(interim_path, "all_names.json")
-year_month_path = Path.joinpath(interim_path, "year_month.json")
+# year_month_path = Path.joinpath(interim_path, "year_month.json")
 
 if not interim_path.exists():
     interim_path.mkdir(parents=True)
@@ -24,6 +25,8 @@ files = list(raw_path.glob("*/*.json"))
 
 # concatenating all the jsons
 for file in files:
+
+    print(file)
 
     with open(file, "r", errors="ignore", encoding="utf-8") as outfile:
         print(file)

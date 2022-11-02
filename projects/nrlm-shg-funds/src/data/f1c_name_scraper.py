@@ -15,8 +15,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 # defining directories
+time_stamp = "2022_23_August"
+
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw", "2021_22_March", "jsons")
+raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
 interim_path = Path.joinpath(dir_path, "data", "interim")
 external_path = Path.joinpath(dir_path, "data", "external")
 devanagari_file_path = Path.joinpath(external_path, "devanagiri.json")
@@ -56,17 +58,17 @@ driver.implicitly_wait(5)
 # ************************POINT OF MANUAL ITERATION********************#
 # selecting the year web element
 year_select = Select(driver.find_element(By.NAME, "year"))
-year = "2021-2022"
+year = "2022-2023"
 year_select.select_by_value(year)
 
-driver.implicitly_wait(5)
+driver.implicitly_wait(2)
 
 # selecting the month web element
 month_select = Select(driver.find_element(By.NAME, "month"))
-month = "03"
+month = "08"  # August
 month_select.select_by_value(month)
 
-driver.implicitly_wait(5)
+driver.implicitly_wait(2)
 
 # clicking submit button
 SubmitButton = driver.find_element(
@@ -76,7 +78,7 @@ SubmitButton.click()
 
 # *********************************************************************#
 
-driver.implicitly_wait(10)
+driver.implicitly_wait(5)
 
 
 state_page = driver.find_elements(
@@ -92,7 +94,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
     driver.execute_script(st_href)
 
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(5)
 
     district_row_select = Select(
         driver.find_element(By.XPATH, '//*[@id="example_length"]/label/select')
@@ -100,7 +102,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
     district_row_select.select_by_value("100")
 
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(5)
 
     district_table = driver.find_elements(By.XPATH, "//*[@id='example']//a")
 
@@ -145,7 +147,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                 driver.execute_script(dist_href)
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 block_row_select = Select(
                     driver.find_element(
@@ -155,7 +157,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                 block_row_select.select_by_value("100")
 
-                driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
 
                 block_table = driver.find_elements(
                     By.XPATH, "//*[@id='example']//a"
@@ -202,7 +204,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         block_hrefs.extend(block_hrefs_next)
 
-                        # driver.implicitly_wait(10)
+                        # driver.implicitly_wait(5)
 
                     else:
                         break
@@ -228,11 +230,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                             block_row_select.select_by_value("100")
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
                             driver.execute_script(block_href)
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
                             gp_row_select = Select(
                                 driver.find_element(
@@ -243,7 +245,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                             gp_row_select.select_by_value("100")
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
                             gp_table = driver.find_elements(
                                 By.XPATH, "//*[@id='example']//a"
@@ -290,7 +292,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                     gp_names.extend(gp_names_next)
 
-                                    driver.implicitly_wait(10)
+                                    driver.implicitly_wait(5)
 
                                 else:
                                     break
@@ -361,7 +363,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                             driver.execute_script(st_href)
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
                             district_row_select = Select(
                                 driver.find_element(
@@ -372,19 +374,16 @@ for state, st_href in zip(state_names, state_hrefs):
 
                             district_row_select.select_by_value("100")
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
                             driver.execute_script(dist_href)
 
-                            driver.implicitly_wait(10)
+                            driver.implicitly_wait(5)
 
-                print("alphie")
                 with open(str(district_json_path), "w") as nested_out_file:
                     json.dump(
                         district_list, nested_out_file, ensure_ascii=False
                     )
-
-                print("beta")
 
             else:
                 print(
@@ -437,7 +436,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(10)
+                    driver.implicitly_wait(5)
 
                     break
 
@@ -494,7 +493,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(10)
+                    driver.implicitly_wait(5)
 
                     break
 

@@ -28,7 +28,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 """PROCESS 1"""
 # defining directories
-time_stamp = "2022_23_May"
+time_stamp = "2022_23_September"
 
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp)
@@ -112,7 +112,7 @@ for row in all_names:
 
                 # selecting the month web element
                 month_select = Select(driver.find_element(By.NAME, "month"))
-                month = "05"
+                month = "09"  # September
                 month_select.select_by_value(month)
 
                 driver.implicitly_wait(5)
