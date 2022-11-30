@@ -1,7 +1,7 @@
 INFUSION
 ==============================
 
-This project cleans and creates district level estimates from the situation assessment of agricultural households survey (NSS 77) as part of the INFUSION research project under BIPP.
+This project cleans and creates district level estimates from the situation assessment of agricultural households survey (NSS 77) as part of the INFUSION research project under BIPP. 
 
 Project Structure
 ------------
