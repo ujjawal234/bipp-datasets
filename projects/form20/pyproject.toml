@@ -2,11 +2,15 @@
 name = "Voting Behaviour"
 version = "0.1.0"
 description = "This repo contains the scrapper to get the form20 raw data and codes for further pdf parsing and data consolidation."
-authors = ["Ewan thomas"]
+authors = ["Ewan Nikhil Thomas"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 python-dotenv = "^0.13.0"
+selenium = "^4.6.1"
+webdriver-manager = "^3.8.5"
+pandas = "^1.5.2"
+lxml = "^4.9.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
