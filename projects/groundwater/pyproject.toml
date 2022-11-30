@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "groundwater"
+version = "0.1.0"
+description = "This project will contain the analysis and documentation for the ground water regulaion policies and its impact."
+authors = ["surya kandukuri"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+ipykernel = "^6.0.1"
+pandas-profiling = "^3.0.0"
+missingno = "^0.5.0"
+altair = "^4.1.0"
+seaborn = "^0.11.1"
+sklearn = "^0.0"
+vega = "^3.5.0"
+altair-saver = "^0.5.0"
+plotly = "^5.1.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
