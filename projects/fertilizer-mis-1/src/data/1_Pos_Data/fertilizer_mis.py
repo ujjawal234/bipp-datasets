@@ -32,7 +32,7 @@ class Fertilizermisscrapper(scrapy.Spider):
             '//select[@id="parameterStateName"]/option/@value'
         ).extract()
         # print(state_names)
-        for state in state_names[1:]:
+        for state in state_names[7:9]:
             yield FormRequest(
                 url="https://reports.dbtfert.nic.in/mfmsReports/getDistrictList",
                 method="POST",
@@ -122,10 +122,17 @@ class Fertilizermisscrapper(scrapy.Spider):
             file_name = meta_data.get("From Date").replace("/", "_") + ".csv"
             self.directory(file_path)
             print(file_path + "/" + file_name)
-            self.scraped_dataset.append(meta_data)
-            self.final_table.to_csv(file_path + "/" + file_name, index=False)
-            self.final_table = self.final_table.iloc[0:0]
-            # print(self.final_table)
+            file_exists = file_path + "/" + file_name
+            if Path(str(file_exists)).is_file():
+                print("file already exists")
+                pass
+            else:
+                self.scraped_dataset.append(meta_data)
+                self.final_table.to_csv(
+                    file_path + "/" + file_name, index=False
+                )
+                self.final_table = self.final_table.iloc[0:0]
+                # print(self.final_table)
 
         else:
             pages_href = response.css(
@@ -173,12 +180,17 @@ class Fertilizermisscrapper(scrapy.Spider):
                 )
                 self.directory(file_path)
                 print(file_path + "/" + file_name)
-                self.scraped_dataset.append(meta_data)
-                self.final_table.to_csv(
-                    file_path + "/" + file_name, index=False
-                )
-                self.final_table = self.final_table.iloc[0:0]
-                # print(self.final_table)
+                file_exists = file_path + "/" + file_name
+                if Path(str(file_exists)).is_file():
+                    print("file already exists")
+                    pass
+                else:
+                    self.scraped_dataset.append(meta_data)
+                    self.final_table.to_csv(
+                        file_path + "/" + file_name, index=False
+                    )
+                    self.final_table = self.final_table.iloc[0:0]
+                    # print(self.final_table)
 
     def directory(self, file_path):
         path_parts = file_path.split("/")
