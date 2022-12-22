@@ -13,7 +13,7 @@ Folder structure for the library
     │
     ├── tests              <- Tests for the library
     │
-    ├── factly             <- All internal packages are in the facly namespace
+    ├── bipp             <- All internal packages are in the bipp namespace
     │   ├── __init__.py    
     │   ├── xxxxx.py       
     │   ├── xxxxx          

@@ -19,7 +19,7 @@ Monorepo Structure
     ├── lib 					<- Each lib is a Python package that you can install using poetry
     │   ├── lib1
     │   │   ├── pyproject.toml  <- Each lib specifies its dependencies
-    │   │   ├── factly/lib1/    <- All internal packages are in the factly namespace
+    │   │   ├── bipp/lib1/    <- All internal packages are in the bipp namespace
     │   │   └── tests/
     │   └── lib2...
     │
@@ -30,7 +30,3 @@ Monorepo Structure
 
 ------------
 The project structure is inspired by the following [article](https://medium.com/opendoor-labs/our-python-monorepo-d34028f2b6fa)
-
-```bash
-poetry run python ../../tools/data-gov-catalogs/scrape_catalog_data.py
-```
