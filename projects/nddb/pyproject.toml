@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "INFUSION"
+version = "0.1.0"
+description = "Clean NDDB data containing consolidated datasets of per capita milk availability, artificial insemination and milk production statewise, rural and urban per capita monthly expenditure and female bovine population"
+authors = ["Diya"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+click = "^7.1.2"
+pandas = "^1.0.5"
+numpy = "^1.19.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
