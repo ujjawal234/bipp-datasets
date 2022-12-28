@@ -26,7 +26,9 @@ class psdataWBscraper(scrapy.Spider):
         i = 0
         for ac in table_ps:
 
-            yield Request(ac, meta={"ac_names": ac_names[i]}, callback=self.save_data)
+            yield Request(
+                ac, meta={"ac_names": ac_names[i]}, callback=self.save_data
+            )
             i += 1
 
     def save_data(self, response):

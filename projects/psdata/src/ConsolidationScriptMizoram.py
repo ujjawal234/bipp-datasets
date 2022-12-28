@@ -34,7 +34,13 @@ class Consolidation_Script:
             inplace=True,
         )
         df_combined = df_combined[
-            ["Year", "State", "AC", "Polling_Station_Number", "Polling_Station_Name"]
+            [
+                "Year",
+                "State",
+                "AC",
+                "Polling_Station_Number",
+                "Polling_Station_Name",
+            ]
         ]
         print(df_combined)
 

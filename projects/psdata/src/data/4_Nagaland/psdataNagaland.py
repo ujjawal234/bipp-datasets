@@ -38,7 +38,9 @@ class psdataNagalandscraper(scrapy.Spider):
             "__EVENTTARGET": "ctl00$ContentPlaceHolder1$DropDownListDistrict",
             "__EVENTARGUMENT": "",
             "__LASTFOCUS": "",
-            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__VIEWSTATE": response.css(
+                "#__VIEWSTATE::attr(value)"
+            ).extract_first(),
             "__VIEWSTATEGENERATOR": response.css(
                 "#__VIEWSTATEGENERATOR::attr(value)"
             ).extract_first(),
@@ -83,8 +85,12 @@ class psdataNagalandscraper(scrapy.Spider):
             "__EVENTARGUMENT": response.css(
                 "#__EVENTARGUMENT::attr(value)"
             ).extract_first(),
-            "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
-            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__LASTFOCUS": response.css(
+                "#__LASTFOCUS::attr(value)"
+            ).extract_first(),
+            "__VIEWSTATE": response.css(
+                "#__VIEWSTATE::attr(value)"
+            ).extract_first(),
             "__VIEWSTATEGENERATOR": response.css(
                 "#__VIEWSTATEGENERATOR::attr(value)"
             ).extract_first(),
@@ -116,11 +122,17 @@ class psdataNagalandscraper(scrapy.Spider):
             '//select[@id="ContentPlaceHolder1_DropDownListPart"]/option/text()'
         ).extract()
         print(final_table)
-        table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
+        table_list = pd.DataFrame(
+            final_table, columns=["Polling_Station_Name"]
+        )
         table_list = table_list.iloc[1:, 0:]
 
         file_path = (
-            self.parent_folder + "/" + "4_Nagaland" + "/" + response.meta["ac_names"]
+            self.parent_folder
+            + "/"
+            + "4_Nagaland"
+            + "/"
+            + response.meta["ac_names"]
         )
         file_name = response.meta["ac_names"] + ".csv"
         self.directory(file_path)

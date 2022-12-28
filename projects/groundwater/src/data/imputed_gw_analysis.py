@@ -113,7 +113,9 @@ for state, pol_date in time_dict.items():
     pol_date = datetime.strptime(pol_date, "%d-%m-%Y")
     state_data = gw_master[gw_master["state"] == state]
     state_data = (
-        state_data.groupby(["month_year", "state"]).aggregate("mean").reset_index()
+        state_data.groupby(["month_year", "state"])
+        .aggregate("mean")
+        .reset_index()
     )
     state_data["status"] = np.where(
         (state_data.month_year > pol_date),

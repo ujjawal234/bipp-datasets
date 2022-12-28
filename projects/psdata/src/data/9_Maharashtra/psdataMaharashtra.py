@@ -119,7 +119,9 @@ class psdataMaharshtrascraper(scrapy.Spider):
             "__ASYNCPOST": "true",
         }
         for ac in ac_values[1:]:
-            form_dict["ctl00$mainContent$DistrictList"] = response.meta["dist_code"]
+            form_dict["ctl00$mainContent$DistrictList"] = response.meta[
+                "dist_code"
+            ]
             form_dict["ctl00$mainContent$AssemblyList"] = ac
             yield FormRequest.from_response(
                 response,

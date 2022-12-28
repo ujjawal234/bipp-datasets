@@ -15,11 +15,17 @@ class psdataMeghalayascraper(scrapy.Spider):
 
     def start_requests(self):
         # request to initiate the scraping
-        yield Request("http://ceomeghalaya.nic.in/erolls/electoral-rolls-pdf.html")
+        yield Request(
+            "http://ceomeghalaya.nic.in/erolls/electoral-rolls-pdf.html"
+        )
 
     def parse(self, response):
-        ac_names = response.xpath('//select[@id="cboACN"]/option/text()').extract()
-        ac_values = response.xpath('//select[@id="cboACN"]/option/@value').extract()
+        ac_names = response.xpath(
+            '//select[@id="cboACN"]/option/text()'
+        ).extract()
+        ac_values = response.xpath(
+            '//select[@id="cboACN"]/option/@value'
+        ).extract()
         print(ac_names)
         print(ac_values)
         for script in response.xpath("//script/text()").extract():
@@ -3354,7 +3360,9 @@ class psdataMeghalayascraper(scrapy.Spider):
             df = pd.DataFrame(columns=["Polling Station Name"])
             column = df.columns[0]
             df[column] = psdata_dict[key]
-            file_path = self.parent_folder + "/" + "5_Meghalaya" + "/" + ac_names[i]
+            file_path = (
+                self.parent_folder + "/" + "5_Meghalaya" + "/" + ac_names[i]
+            )
             file_name = ac_names[i] + ".csv"
             self.directory(file_path)
             df.to_csv(file_path + "/" + file_name, index=False)

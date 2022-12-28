@@ -32,8 +32,12 @@ class psdataOrrisascraper(scrapy.Spider):
             "__EVENTARGUMENT": response.css(
                 "#__EVENTARGUMENT::attr(value)"
             ).extract_first(),
-            "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
-            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__LASTFOCUS": response.css(
+                "#__LASTFOCUS::attr(value)"
+            ).extract_first(),
+            "__VIEWSTATE": response.css(
+                "#__VIEWSTATE::attr(value)"
+            ).extract_first(),
             "__VIEWSTATEGENERATOR": response.css(
                 "#__VIEWSTATEGENERATOR::attr(value)"
             ).extract_first(),
@@ -61,8 +65,12 @@ class psdataOrrisascraper(scrapy.Spider):
 
     def ac_parser(self, response):
         # This function gets the list assembly constituencies and raises another request to get ps_data of each constituency.
-        ac_list = response.xpath('//select[@id="ddlAC"]/option/text()').extract()
-        ac_values = response.xpath('//select[@id="ddlAC"]/option/@value').extract()
+        ac_list = response.xpath(
+            '//select[@id="ddlAC"]/option/text()'
+        ).extract()
+        ac_values = response.xpath(
+            '//select[@id="ddlAC"]/option/@value'
+        ).extract()
         # print(ac_list)
         # print("*****")
         form_dict = {
@@ -72,8 +80,12 @@ class psdataOrrisascraper(scrapy.Spider):
             "__EVENTARGUMENT": response.css(
                 "#__EVENTARGUMENT::attr(value)"
             ).extract_first(),
-            "__LASTFOCUS": response.css("#__LASTFOCUS::attr(value)").extract_first(),
-            "__VIEWSTATE": response.css("#__VIEWSTATE::attr(value)").extract_first(),
+            "__LASTFOCUS": response.css(
+                "#__LASTFOCUS::attr(value)"
+            ).extract_first(),
+            "__VIEWSTATE": response.css(
+                "#__VIEWSTATE::attr(value)"
+            ).extract_first(),
             "__VIEWSTATEGENERATOR": response.css(
                 "#__VIEWSTATEGENERATOR::attr(value)"
             ).extract_first(),
@@ -100,13 +112,21 @@ class psdataOrrisascraper(scrapy.Spider):
 
     def save_data(self, response):
         # This function gets list of psdata for all the constituencies and saves the data.
-        final_table = response.xpath('//select[@id="ddlPart"]/option/text()').extract()
+        final_table = response.xpath(
+            '//select[@id="ddlPart"]/option/text()'
+        ).extract()
         # print(final_table)
-        table_list = pd.DataFrame(final_table, columns=["Polling_Station_Name"])
+        table_list = pd.DataFrame(
+            final_table, columns=["Polling_Station_Name"]
+        )
         table_list = table_list.iloc[1:, 0:]
 
         file_path = (
-            self.parent_folder + "/" + "3_Orrisa" + "/" + response.meta["ac_names"]
+            self.parent_folder
+            + "/"
+            + "3_Orrisa"
+            + "/"
+            + response.meta["ac_names"]
         )
         file_name = response.meta["ac_names"] + ".csv"
         self.directory(file_path)
