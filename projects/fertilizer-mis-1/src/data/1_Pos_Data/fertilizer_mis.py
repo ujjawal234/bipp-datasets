@@ -103,7 +103,7 @@ class Fertilizermisscrapper(scrapy.Spider):
             pages_text = response.css(
                 "span.pagelinks > strong::text"
             ).extract()
-        elif pages_text[-1] != "Next ?":
+        if pages_text[-1] != "Next ?":
             meta_data = dict(response.meta)
             print(meta_data)
             month_number = meta_data.get("From month")
