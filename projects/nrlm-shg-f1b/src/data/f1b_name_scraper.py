@@ -18,7 +18,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 # defining directories
 
-time_stamp = "2022_23_June"
+time_stamp = "2022_July"
 dir_path = Path.cwd()
 raw_path = Path.joinpath(dir_path, "data", "raw", time_stamp, "jsons")
 interim_path = Path.joinpath(dir_path, "data", "interim")
@@ -41,31 +41,31 @@ driver = webdriver.Chrome(
 
 url = "https://nrlm.gov.in/RevolvingFundDisbursementAction.do?methodName=showDetail"
 driver.get(url)
-driver.implicitly_wait(5)
+driver.implicitly_wait(2)
 
 # the first year and month
 
 selectyear1 = Select(driver.find_element(By.ID, "yearId"))
 year1 = "2022"
 selectyear1.select_by_value(year1)
-time.sleep(5)
+time.sleep(15)
 
 selectmonth1 = Select(driver.find_element(By.ID, "month"))
-month1 = "06"
+month1 = "07"
 selectmonth1.select_by_value(month1)
-driver.implicitly_wait(5)
+driver.implicitly_wait(10)
 
 # the second year and month
 
 selectyear2 = Select(driver.find_element(By.ID, "yearIdd"))
 year2 = "2022"
 selectyear2.select_by_value(year2)
-driver.implicitly_wait(5)
+driver.implicitly_wait(10)
 
 selectmonth2 = Select(driver.find_element(By.ID, "toMonth"))
-month2 = "06"
+month2 = "07"
 selectmonth2.select_by_value(month2)
-driver.implicitly_wait(5)
+driver.implicitly_wait(10)
 
 # clicking submit
 
@@ -91,14 +91,14 @@ for state, st_href in zip(state_names, state_hrefs):
 
     # checking if state path exists or not
 
-    state_path = Path.joinpath(raw_path, state)
+    state_path = Path.joinpath(raw_path, state.lower().replace(" ", "_"))
     if not state_path.exists():
         print("Making the state path for the state " + state + "...", end="\n")
         state_path.mkdir(parents=True)
 
     driver.execute_script(st_href)
 
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(2)
 
     # selecting option to view 100 pages
 
@@ -107,7 +107,7 @@ for state, st_href in zip(state_names, state_hrefs):
     )
     no_of_pages.select_by_value("100")
 
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(2)
 
     # select the districts with hyperlink
 
@@ -123,7 +123,7 @@ for state, st_href in zip(state_names, state_hrefs):
         if next_page_class != "paginate_button next disabled":
             NextButton.click()
 
-            driver.implicitly_wait(5)
+            driver.implicitly_wait(2)
 
             print(
                 "NEXT button exists for "
@@ -141,7 +141,7 @@ for state, st_href in zip(state_names, state_hrefs):
             )
             no_of_pages.select_by_value("100")
 
-            driver.implicitly_wait(5)
+            driver.implicitly_wait(2)
 
             # select the districts with hyperlink
 
@@ -172,7 +172,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
             # defining json
 
-            json_name = ".".join([district, "json"])
+            json_name = ".".join([district.lower().replace(" ", "_"), "json"])
             district_json_path = Path.joinpath(raw_path, state, json_name)
 
             # checking if json exists
@@ -192,7 +192,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                 driver.execute_script(di_href)
 
-                driver.implicitly_wait(5)
+                driver.implicitly_wait(2)
 
                 # selecting option to view 100 pages
 
@@ -203,7 +203,7 @@ for state, st_href in zip(state_names, state_hrefs):
                 )
                 no_of_pages.select_by_value("100")
 
-                driver.implicitly_wait(5)
+                driver.implicitly_wait(2)
 
                 # select the blocks with hyperlink
 
@@ -223,7 +223,7 @@ for state, st_href in zip(state_names, state_hrefs):
                     if next_page_class != "paginate_button next disabled":
                         NextButton.click()
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         print(
                             "NEXT button exists for "
@@ -242,7 +242,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         )
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # select the blocks with hyperlink
 
@@ -274,7 +274,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         driver.execute_script(bl_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # selecting option to view 100 pages
 
@@ -286,7 +286,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         )
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # select the gps with hyperlink
 
@@ -309,7 +309,7 @@ for state, st_href in zip(state_names, state_hrefs):
                             ):
                                 NextButton.click()
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 print(
                                     "NEXT button exists for "
@@ -328,7 +328,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                 )
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # select the gps with hyperlink
 
@@ -359,7 +359,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 driver.execute_script(gp_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # selecting option to view 100 pages
 
@@ -371,7 +371,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                 )
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # select the villages with hyperlink
 
@@ -402,7 +402,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                     ):
                                         NextButton.click()
 
-                                        driver.implicitly_wait(5)
+                                        driver.implicitly_wait(2)
 
                                         print(
                                             "NEXT button exists for "
@@ -421,7 +421,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                         )
                                         no_of_pages.select_by_value("100")
 
-                                        driver.implicitly_wait(5)
+                                        driver.implicitly_wait(2)
 
                                         # select the villages with hyperlink
 
@@ -522,7 +522,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 driver.get(url)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # the first year and month
 
@@ -536,7 +536,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                     driver.find_element(By.ID, "month")
                                 )
                                 selectmonth1.select_by_value(month1)
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # the second year and month
 
@@ -544,13 +544,13 @@ for state, st_href in zip(state_names, state_hrefs):
                                     driver.find_element(By.ID, "yearIdd")
                                 )
                                 selectyear2.select_by_value(year2)
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 selectmonth2 = Select(
                                     driver.find_element(By.ID, "toMonth")
                                 )
                                 selectmonth2.select_by_value(month2)
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 # clicking submit
 
@@ -559,11 +559,11 @@ for state, st_href in zip(state_names, state_hrefs):
                                     '//*[@id="panelfilter"]/ul/li[4]/div/input[1]',
                                 ).click()
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 driver.execute_script(st_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 no_of_pages = Select(
                                     driver.find_element(
@@ -574,11 +574,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 no_of_pages.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 driver.execute_script(di_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 no_of_pages_1 = Select(
                                     driver.find_element(
@@ -589,11 +589,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                 no_of_pages_1.select_by_value("100")
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                                 driver.execute_script(bl_href)
 
-                                driver.implicitly_wait(5)
+                                driver.implicitly_wait(2)
 
                         # sub-sub-except block ends
 
@@ -609,7 +609,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         driver.get(url)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # the first year and month
 
@@ -623,7 +623,7 @@ for state, st_href in zip(state_names, state_hrefs):
                             driver.find_element(By.ID, "month")
                         )
                         selectmonth1.select_by_value(month1)
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # the second year and month
 
@@ -631,13 +631,13 @@ for state, st_href in zip(state_names, state_hrefs):
                             driver.find_element(By.ID, "yearIdd")
                         )
                         selectyear2.select_by_value(year2)
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         selectmonth2 = Select(
                             driver.find_element(By.ID, "toMonth")
                         )
                         selectmonth2.select_by_value(month2)
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         # clicking submit
 
@@ -646,11 +646,11 @@ for state, st_href in zip(state_names, state_hrefs):
                             '//*[@id="panelfilter"]/ul/li[4]/div/input[1]',
                         ).click()
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         driver.execute_script(st_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         no_of_pages = Select(
                             driver.find_element(
@@ -661,11 +661,11 @@ for state, st_href in zip(state_names, state_hrefs):
 
                         no_of_pages.select_by_value("100")
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                         driver.execute_script(di_href)
 
-                        driver.implicitly_wait(5)
+                        driver.implicitly_wait(2)
 
                     # sub-except block ends
 
@@ -700,7 +700,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     driver.get(url)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # the first year and month
 
@@ -710,19 +710,19 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     selectmonth1 = Select(driver.find_element(By.ID, "month"))
                     selectmonth1.select_by_value(month1)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # the second year and month
 
                     selectyear2 = Select(driver.find_element(By.ID, "yearIdd"))
                     selectyear2.select_by_value(year2)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     selectmonth2 = Select(
                         driver.find_element(By.ID, "toMonth")
                     )
                     selectmonth2.select_by_value(month2)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # clicking submit
 
@@ -730,11 +730,11 @@ for state, st_href in zip(state_names, state_hrefs):
                         By.XPATH,
                         '//*[@id="panelfilter"]/ul/li[4]/div/input[1]',
                     ).click()
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     break
                 # sub-try block ends
@@ -775,7 +775,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     url = "https://nrlm.gov.in/RevolvingFundDisbursementAction.do?methodName=showDetail"
                     driver.get(url)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # #the first year and month
 
@@ -785,19 +785,19 @@ for state, st_href in zip(state_names, state_hrefs):
 
                     selectmonth1 = Select(driver.find_element(By.ID, "month"))
                     selectmonth1.select_by_value(month1)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # the second year and month
 
                     selectyear2 = Select(driver.find_element(By.ID, "yearIdd"))
                     selectyear2.select_by_value(year2)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     selectmonth2 = Select(
                         driver.find_element(By.ID, "toMonth")
                     )
                     selectmonth2.select_by_value(month2)
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     # clicking submit
 
@@ -806,11 +806,11 @@ for state, st_href in zip(state_names, state_hrefs):
                         '//*[@id="panelfilter"]/ul/li[4]/div/input[1]',
                     ).click()
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     driver.execute_script(st_href)
 
-                    driver.implicitly_wait(5)
+                    driver.implicitly_wait(2)
 
                     break
                 # sub-try block ends

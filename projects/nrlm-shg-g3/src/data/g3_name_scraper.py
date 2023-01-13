@@ -12,7 +12,7 @@ from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
 
 dir_path = Path.cwd()
-raw_path = Path.joinpath(dir_path, "data", "raw")
+raw_path = Path.joinpath(dir_path, "data", "raw", "jsons")
 interim_path = Path.joinpath(dir_path, "data", "interim")
 external_path = Path.joinpath(dir_path, "data", "external")
 
@@ -70,9 +70,9 @@ for state, st_href in zip(state_names, state_hrefs):
         try:
             district_list=[]
             
-            state_path = Path.joinpath(raw_path, state)
-            json_name = ".".join([district, "json"])
-            district_json_path = Path.joinpath(raw_path, state, json_name)
+            state_path = Path.joinpath(raw_path, state.lower().replace(" ", "_"))
+            json_name = ".".join([district.lower().replace(" ", "_"), "json"])
+            district_json_path = Path.joinpath(raw_path, state.lower().replace(" ", "_"), json_name)
 
             if not state_path.exists():
                 Path.mkdir(state_path, parents=True)
@@ -425,9 +425,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                                             #print(gr_id_next)
                                                             gr_id.extend(gr_id_next)
                                                             #print(gr_id)
-                                                            
-                                                            
-
+  
                                                             driver.implicitly_wait(2)
 
                                                         else:
@@ -449,6 +447,8 @@ for state, st_href in zip(state_names, state_hrefs):
                                                                 "group_id": gr_id[i]
                                                                 
                                                             }
+                                                            # for key, value in vill_dict.items():
+                                                            #     vill_dict[key] = value.lower().replace(" ", "_")
                                                             district_list.append(vill_dict)
                                                         
                                                             
@@ -463,8 +463,7 @@ for state, st_href in zip(state_names, state_hrefs):
 
                                                     break
                                                         
-                                                    
-                                                        
+                             
                                                 except NoSuchElementException:
                                                     print(
                                                         f"No Such Element raised at {state} {district} {block} {gp} {vill}"
@@ -489,7 +488,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                                     driver.implicitly_wait(2)
 
                                                     driver.execute_script(dist_href)
-                                                    #?
+                                                    
                                                     driver.execute_script(block_href)
                                                     driver.execute_script(gp_href)
 
@@ -526,7 +525,7 @@ for state, st_href in zip(state_names, state_hrefs):
                                         driver.implicitly_wait(2)
 
                                         driver.execute_script(dist_href)
-                                        #?
+                                        
                                         driver.execute_script(block_href)
 
                                         driver.implicitly_wait(2)    
@@ -570,8 +569,7 @@ for state, st_href in zip(state_names, state_hrefs):
                         district_list, nested_out_file, ensure_ascii=False
                     )
                     
-                
-            
+                            
             else:
                 print(
                     district_json_path,
