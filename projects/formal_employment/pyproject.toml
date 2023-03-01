@@ -5,7 +5,7 @@ description = "Employment related statistics published by MOSPI in monlthy P'Pay
 authors = ["Biky Roy, Vijay Kumar"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^>=3.8,<3.11"
 python-dotenv = "^0.13.0"
 
 [tool.poetry.dev-dependencies]
