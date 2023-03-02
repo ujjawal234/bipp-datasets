@@ -1,3 +1,7 @@
+"""
+The script downloads all the payroll reports released on MOSPI website.
+"""
+
 import scrapy
 from pathlib import Path
 import urllib.parse
