@@ -4,6 +4,10 @@ Formal Employment (Payroll Reporting in India)
 Employment related statistics published by MOSPI in monlthy 'Payroll Reporting in India' reports.
 Example report: [Payroll Reporting in India - December 2022](https://www.mospi.gov.in/sites/default/files/press_release/PayrollReporting-in-India-AnEmploymentPerspective-December2022__24022023.pdf)
 
+The report for the last month contains the tabular information for all the months of the financial year. Currently, only march 2022 and december 2022 reports are used to extract information for the period between april 2021 to december 2022. It's because no other reports are available on the press releases section of MOSPI website.
+`extract_payroll` notebook extracts the data from a pdf payroll report in wide (melted) format with 5 columns: age, gender, head, sector, value.
+This data is stored in the interim data folder to be later used by `consolidate` notebook to export the final clean consolidated data into two formats: csv for external use and parquet for data engineering use cases.
+
 Project Structure
 ------------
 
