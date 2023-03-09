@@ -8,6 +8,7 @@ authors = ["Biky Roy, Vijay Kumar"]
 python = ">=3.8,<3.11"
 python-dotenv = "^0.13.0"
 camelot-py = "^0.11.0"
+wasabit = "^0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
