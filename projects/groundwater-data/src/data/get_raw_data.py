@@ -66,31 +66,28 @@ class groundwaterdata(scrapy.Spider):
             # print("===========**===========")
             # print(sDate)
             # print(eDate)
-            rDate=singledate.strftime("%d-%m-%Y").replace("-", "")
+            rDate = singledate.strftime("%d-%m-%Y").replace("-", "")
             print(rDate)
-
 
             y = singledate.year
             m = singledate.strftime("%B")
             state_filename = (
-            "state_"
-            + singledate.strftime("%d-%m-%Y").replace("-", "")
-            + ".csv"
+                "state_" + singledate.strftime("%d-%m-%Y").replace("-", "") + ".csv"
             )
 
             file_path_state = (
-                            imd_raw_folder
-                            + "/"
-                            + "state_level"
-                            + "/"
-                            + str(y)
-                            + "/"
-                            + str(m)
-                            +"/"
-                            +state_filename
-                        )
+                imd_raw_folder
+                + "/"
+                + "state_level"
+                + "/"
+                + str(y)
+                + "/"
+                + str(m)
+                + "/"
+                + state_filename
+            )
             print(file_path_state)
-            
+
             if Path(file_path_state).is_file():
                 print("YYEEESSS")
                 pass
@@ -197,27 +194,27 @@ class groundwaterdata(scrapy.Spider):
             y = response.meta["start_date"].year
             m = response.meta["start_date"].strftime("%B")
             district_filename = (
-            state_name.lower()
-            + "_"
-            + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
-            + ".csv"
-        )
+                state_name.lower()
+                + "_"
+                + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
+                + ".csv"
+            )
 
             file_path_dis = (
-                        imd_raw_folder
-                        + "/"
-                        + "district_level"
-                        + "/"
-                        + state_name
-                        + "/"
-                        + str(y)
-                        + "/"
-                        + str(m)
-                        +"/"
-                        +district_filename
-                        )
+                imd_raw_folder
+                + "/"
+                + "district_level"
+                + "/"
+                + state_name
+                + "/"
+                + str(y)
+                + "/"
+                + str(m)
+                + "/"
+                + district_filename
+            )
             print(file_path_dis)
-            
+
             if Path(file_path_dis).is_file():
                 print("YYEEESSS")
                 # pass
@@ -339,37 +336,34 @@ class groundwaterdata(scrapy.Spider):
             district_name = row["district_name"]
             district_loc_id = row["uuid"]
 
-
-
             y = response.meta["start_date"].year
             m = response.meta["start_date"].strftime("%B")
             station_filename = (
-            response.meta["state_name"].lower()
-            + "_"
-            + district_name.lower()
-            + "_"
-            + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
-            + ".csv"
-        )
+                response.meta["state_name"].lower()
+                + "_"
+                + district_name.lower()
+                + "_"
+                + response.meta["start_date"].strftime("%d-%m-%Y").replace("-", "")
+                + ".csv"
+            )
 
             file_path_station = (
-                        imd_raw_folder
-                        + "/"
-                        + "station_level"
-                        + "/"
-                        + response.meta["state_name"]
-                        + "/"
-                        + district_name
-                        + "/"
-                        + str(y)
-                        + "/"
-                        + str(m)
-                        + "/"
-                        + station_filename
-
-                        )
+                imd_raw_folder
+                + "/"
+                + "station_level"
+                + "/"
+                + response.meta["state_name"]
+                + "/"
+                + district_name
+                + "/"
+                + str(y)
+                + "/"
+                + str(m)
+                + "/"
+                + station_filename
+            )
             print(file_path_station)
-            
+
             if Path(file_path_station).is_file():
                 print("YYEEESSS")
                 pass
@@ -498,7 +492,7 @@ def main():
     settings.set("CUSTOM_SETTING", "Super Custom Setting")
     settings.update(
         {
-            # "CONCURRENT_REQUESTS": 1,
+            "CONCURRENT_REQUESTS": 10,
             "ROBOTSTXT_OBEY": True,
             # "AUTOTHROTTLE_ENABLED": True,
             # "DOWNLOAD_DELAY": 1.5,
