@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "wris-extreme-events"
+version = "0.1.0"
+description = "WRIS Earthquake Events, Minimum and Maximum Temperature"
+authors = ["Sailesh Reddy, Vijay Kumar"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
