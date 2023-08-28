@@ -1,7 +1,7 @@
 tea-auction-prices
 ==============================
 
-A short description of the project.
+Tea Board Weekly Auction Prices
 
 Project Structure
 ------------
