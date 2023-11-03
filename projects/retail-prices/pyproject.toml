@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "retail-prices"
+version = "0.1.0"
+description = "Extracts the State Wise Daily Retail Price Report Published by the Department of Consumer Affairs"
+authors = ["Vijay"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dotenv = "^0.13.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
