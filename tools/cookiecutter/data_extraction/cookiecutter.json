@@ -1,0 +1,6 @@
+{
+    "project_name": "Name of the project. Multiple words should be separated by a hyphen (-)",
+    "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+    "authors": "Name of the authors working on the project",
+    "description": "A short description of the project."
+}
