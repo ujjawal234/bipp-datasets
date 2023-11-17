@@ -1,0 +1,5 @@
+{
+    "project_name": "Name of the project. Multiple words should be separated by a hyphen (-)",
+    "authors": "Name of the authors working on the project (separated by commas)",
+    "description": "A short description of the project."
+}
