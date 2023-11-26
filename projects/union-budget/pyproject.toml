@@ -6,6 +6,7 @@ authors = ["Ujjawal, Vijay"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
+pandas = "^2.1.3"
 
 [tool.poetry.dev-dependencies]
 
