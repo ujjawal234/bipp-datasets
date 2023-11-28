@@ -66,7 +66,6 @@ df = pd.concat(cln_dfs)
 col_order = ["year", "estimate_type", "english_head", "value"]
 df["english_head"] = df["english_head"].str.strip()
 fnl_df = df[col_order]
-fnl_df = remove_characters_from_columns(fnl_df)
-fnl_df.to_csv(DEST_PATH, index=False)
+fnl_df.to_csv(DEST_PATH, index=False, quoting= csv.QUOTE_NONNUMERIC)
 print(fnl_df)
 

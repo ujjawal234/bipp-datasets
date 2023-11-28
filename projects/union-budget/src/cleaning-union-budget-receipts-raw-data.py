@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 from pathlib import Path
+import csv
 
 DATA_DIR = Path(__file__).parents[1] / "data"
 DEST_PATH = DATA_DIR / "interim" / "ub_reciepts_last_4_years.csv"
@@ -66,6 +67,6 @@ col_order = ["year", "estimate_type", "english_head", "value"]
 df["english_head"] = df["english_head"].str.strip()
 fnl_df = df[col_order]
 
-fnl_df = remove_characters_from_columns(fnl_df)
-fnl_df.to_csv(DEST_PATH, index=False)
-print(fnl_df)
+# fnl_df = remove_characters_from_columns(fnl_df)
+fnl_df.to_csv(DEST_PATH, index=False, quoting= csv.QUOTE_NONNUMERIC)
+
