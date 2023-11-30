@@ -4,34 +4,34 @@ from pathlib import Path
 import csv
 import numpy as np
 
-def extract_rows_with_data_points(input_df):
-    # Drop rows with NaN values in columns 2 and above
-    print(input_df)
-    cleaned_df = input_df.dropna(subset=input_df.columns[1:], how='all')
+def extract_rows_with_data_points(df: pd.DataFrame):
+    index = df.iloc[:,2:].dropna(how='all').index
+    return df.iloc[index].reset_index(drop=True)
+
+
+
+
+def filter_sub_heads(df):
     
-    cleaned_df = cleaned_df.map(lambda x: np.nan if pd.isna(x) or x == '...' else x)
-    
-    cleaned_df = cleaned_df.dropna(subset=cleaned_df.columns[1:], how='all')
-    cleaned_df = cleaned_df.iloc[1:,:]
-    
-    cleaned_df['head'] = cleaned_df.iloc[:, 0:4].fillna('').astype(str).agg(' '.join, axis=1)
-    cleaned_df = cleaned_df.iloc[:,4:]
-    
-    columns = ['head'] + [col for col in cleaned_df.columns if col != 'head']
-    cleaned_df = cleaned_df[columns]
-    
-    
-    return cleaned_df
+    heads =df.loc[df.iloc[:,0].apply(lambda x: isinstance(x, int))]
+    heads = heads.iloc[:, :2]
+    heads.columns = ['key','head']
+    heads= heads.reset_index(drop = True)
+    heads_dict = dict(zip(heads['key'], heads['head']))
+    sub_heads=df.loc[df.iloc[:,1].str.strip(".").str.contains(".", na=False, regex=False)].iloc[:,1:]
+    sub_heads.columns = ['heads','subhead','','','','',''] 
+    sub_heads['heads'] = sub_heads['heads'].astype(str).str.split('.').str[0]
+    sub_heads['heads'] = pd.to_numeric(sub_heads['heads'], errors='coerce')
+    sub_heads['heads'] = sub_heads['heads'].map(heads_dict)
+    print(sub_heads)
+
+
+    return sub_heads
 
 
 def assign_column_names(df: pd.DataFrame):
-    df.columns = ['head'] + df.iloc[0, 1:].to_list()
+    df.columns = ['head','subhead'] + df.iloc[0, 2:].to_list()
     return df.iloc[1:].reset_index(drop=True)
-
-
-def concat_first_three_rows(df):
-    
-    return df
 
 
 def remove_utf8(text):
@@ -74,6 +74,6 @@ def split_variable_column(df: pd.DataFrame, column_name: str = "variable"):
 
 
 def data_cleaning_pipeline(df: pd.DataFrame):
-    return df.pipe(extract_rows_with_data_points).map(remove_newlines).map(remove_brackets).map(remove_utf8)
+    return df.pipe(filter_sub_heads)
 
 
