@@ -9,9 +9,9 @@ from pathlib import Path
 import csv
 
 DATA_DIR = Path(__file__).parents[1] / "data"
-DEST_PATH = DATA_DIR / "interim" / "ub__last_4_tax_revenue_years.csv"
+DEST_PATH = DATA_DIR / "interim" / "ub__last_4_non_tax_revenue_years.csv"
 
-files = list((DATA_DIR / "raw" / "Tax revenue").glob("*.xlsx"))
+files = list((DATA_DIR / "raw" / "Non tax revenue").glob("*.xlsx"))
 xls = [pd.read_excel(f).dropna(axis=1, how="all").dropna(axis=0, how="all") for f in files]
 
 
