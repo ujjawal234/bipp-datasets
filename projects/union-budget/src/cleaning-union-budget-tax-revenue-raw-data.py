@@ -33,7 +33,7 @@ def extract_header(df):
     merged_df = pd.concat([merged_df, merged_row], ignore_index=True)
     secgroup=df.iloc[major_head_indices[0]+1:,:]
     df = pd.concat([merged_row, secgroup], ignore_index=True)
-    df.iloc[0] = df.iloc[0].str.replace('\n', ' ')
+    df.iloc[0] = df.iloc[0].str.replace(r'\n', ' ').str.replace(r'crores', ' ', regex=True).str.replace(r'Crores', ' ', regex=True).str.replace(r'In', ' ', regex=True).str.replace(r'\(', ' ', regex=True).str.replace(r'\)', ' ', regex=True)
     return df.iloc[0]
 
 
@@ -95,6 +95,6 @@ fnl_df['value'] = pd.to_numeric(fnl_df['value'], errors='coerce')
 
 # Drop rows where "value" column is NaN
 fnl_df = fnl_df.dropna(subset=['value'])
-fnl_df['estimate_type'] = fnl_df['estimate_type'].map(lambda x: str(x).replace('`', '').replace(' ', '').replace('(Incrores)', ''))
+
 
 fnl_df.to_csv(DEST_PATH, index=False)
