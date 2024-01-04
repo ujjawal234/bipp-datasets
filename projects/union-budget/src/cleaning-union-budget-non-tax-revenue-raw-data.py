@@ -24,23 +24,13 @@ def format_raw_data(df):
 
     # Reset index and remove rows where the next row is a subheading
     df.reset_index(drop=True, inplace=True)
-    index_to_remove = []
-
-    for i in range(len(df) - 1):
-        current_value = df.iloc[i, 1]  
-        next_value = df.iloc[i + 1, 1]
-
-        if pd.notna(current_value) and pd.notna(next_value):
-            if is_subheading(current_value, next_value):
-                index_to_remove.append(i)
-
-    df.drop(index_to_remove, inplace=True)
-    df.reset_index(drop=True, inplace=True)
     return df
 
 # Function to extract subheadings from a DataFrame
 def extract_subheads(df):
+    print(df.iloc[:50,1:3])
     subheads = df.loc[df.iloc[:, 1].str.strip(".").str.contains(".", na=False, regex=False)].iloc[:, :]
+
     return subheads.iloc[:, 1:]
 
 # Function to extract header information from a DataFrame
@@ -76,6 +66,12 @@ def extract_total_head(df):
     sdf = sdf.drop(sdf.columns[3], axis=1)
     return sdf
 
+
+
+
+
+
+
 def extract_total_h(df):
     sdf = df[df.iloc[:, 1].notna()]
     sdf= sdf[sdf.iloc[:, 1] != "Net"]  
@@ -106,7 +102,8 @@ def mapping_subtohead(df):
     heads['key'] = pd.to_numeric(heads['key'], errors='coerce')
     heads_dict = dict(zip(heads['key'], heads['head']))
     
-    subheads = extract_subheads(df)
+    subhead = extract_subheads(df)
+    subheads =concatenate_less_receipts(subhead)
     total_subhead=extract_total_h(df)
     total_subhead.columns = ['Head', 'subhead'] + list(extract_header(df).iloc[3:])
     total_subhead['Head'] = total_subhead['Head'].astype(str).str.split('.').str[0]
@@ -120,12 +117,17 @@ def mapping_subtohead(df):
     total_subhead['Head'] = total_subhead['Head'].map(heads_dict)
     subheads['Head'] = subheads['Head'].map(heads_dict)
     result_df = pd.concat([subheads,total_subhead, total_head])
+    
     return result_df
     # Sort DataFrame by 'Head' column
     # sorted_df = result_df.sort_values(by=['Head'])
     
     # return sorted_df
 
+
+
+
+# Apply the function to the specified column
 
 # Function to split variable column and clean data in a DataFrame
 def split_variable_column(df: pd.DataFrame, column_name: str = "variable"):
