@@ -5,13 +5,10 @@ import numpy as np
 
 
 DATA_DIR = Path(__file__).parents[1] / "data"
-DEST_PATH = DATA_DIR / "interim" / "ub__last_4_tax_revenue_years.csv"
+DEST_PATH = DATA_DIR / "interim" / "ub__last_4_capital_reciepts_years.csv"
 
-files = list((DATA_DIR / "raw" / "tax revenue").glob("*.xlsx"))
 
-xls = [pd.read_excel(f).dropna(axis=1, how="all").dropna(axis=0, how="all") for f in files]
 
-# Function to check if a value is a subheading of another
 def is_subheading(value, next_value):
     return next_value.startswith(value) and next_value != value
 
@@ -19,6 +16,7 @@ def is_subheading(value, next_value):
 def format_raw_xls_data(xls):
     for df in xls:
         # Remove columns with all NaN values
+        df= df.iloc[:-1,]
         cols_to_remove = df.columns[1:3][(df.iloc[:, 1:3].isna().all(axis=0))]
         df.drop(columns=cols_to_remove, inplace=True)
 
@@ -56,10 +54,8 @@ def format_raw_xls_data(xls):
         df.reset_index(drop=True, inplace=True)
 
 
-# Function to extract subheadings from a DataFrame
 def extract_subheads(df):
-    subheads=df.loc[df.iloc[:,1].str.strip(".").str.contains(".", na=False, regex=False)].iloc[:,:]
-    
+    subheads=df.loc[df.iloc[:,1].str.replace(')',"").str.strip(".").str.contains(".", na=False, regex=False)].iloc[:,:]
     return subheads.iloc[:,1:]
 
 
@@ -74,8 +70,7 @@ def extract_header(df):
     merged_df = pd.concat([merged_df, merged_row], ignore_index=True)
     secgroup=df.iloc[major_head_indices[0]+1:,:]
     df = pd.concat([merged_row, secgroup], ignore_index=True)
-    df.iloc[0] = df.iloc[0].str.replace(r'\n', ' ').str.replace(r'crores', ' ', regex=True).str.replace(r'Crores', ' ', regex=True).str.replace(r'In', ' ', regex=True).str.replace(r'\(', ' ', regex=True).str.replace(r'\)', ' ', regex=True)
-
+    df.iloc[0] = df.iloc[0].str.replace(r'\n', ' ').str.replace(r'crores', ' ', regex=True).str.replace(r'Crores', ' ', regex=True).str.replace(r'In', ' ', regex=True).str.replace(r'\(', ' ', regex=True).str.replace(r'\)', ' ', regex=True).str.replace(r'`', ' ', regex=True)
 
     return df.iloc[0]
 
@@ -97,7 +92,7 @@ def extract_total_h(df):
     sdf = df[df.iloc[:, 1].notna()]
     sdf= sdf[sdf.iloc[:, 1] != "Net"]  
     for i in range(len(sdf) - 1):
-            sdf.iloc[i, 0] = sdf.iloc[i-2, 1]  
+            sdf.iloc[i, 0] = sdf.iloc[i-1, 1]  
     sdf = sdf[sdf.iloc[:, 3].isna()]
     sdf = sdf[sdf.iloc[:, -1].notna()]
     sdf = sdf[sdf.iloc[:, -2].notna()]
@@ -143,28 +138,24 @@ def mapping_subtohead(df):
     
     # return sorted_df
 
-# Function to split variable column and clean data in a DataFrame
+
 def split_variable_column(df: pd.DataFrame, column_name: str = "variable"):
     df['year'] = df[column_name].str.extract(r'(\d{4}-\d{4})')
-    
-    # Extract 'estimate_type' and clean
-    df['estimate_type'] = df[column_name].str.replace(r'\d{4}-\d{4}', '', regex=True).str.strip()
-    df['estimate_type'] = df['estimate_type'].str.extract(r'`?(.*)').squeeze().str.strip()
-    
+    df['estimate_type'] = df[column_name].str.replace(
+        r'\d{4}-\d{4}', '', regex=True).str.strip()
     return df.drop(columns=column_name)
 
-# Function for the entire data cleaning pipeline
+
 def data_cleaning_pipeline(df: pd.DataFrame):
     return df.pipe(mapping_subtohead).drop(columns='Major Head')
+
 
 # Main function
 def main():
     # Read and format raw Excel data
-    files = list((DATA_DIR / "raw" / "tax revenue").glob("*.xlsx"))
+    files = list((DATA_DIR / "raw" / "Capital reciepts").glob("*.xlsx"))
     xls = [pd.read_excel(f).dropna(axis=1, how="all").dropna(axis=0, how="all") for f in files]
 
-    # Perform data cleaning
-    format_raw_xls_data(xls)
     
     # Map subheadings to heads, melt DataFrame, and split variable column
     cln_dfs = map(lambda df: df.pipe(data_cleaning_pipeline).melt(id_vars=['Head', 'subhead']).pipe(split_variable_column), xls)
