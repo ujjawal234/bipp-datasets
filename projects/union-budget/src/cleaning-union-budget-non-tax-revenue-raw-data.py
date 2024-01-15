@@ -23,7 +23,6 @@ def format_raw_xls_data(xls):
 
         # Reset index and remove rows where the next row is a subheading
         df.reset_index(drop=True, inplace=True)
-        index_to_remove = []
 
         stack_Sno = []
         stack_value = []
